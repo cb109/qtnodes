@@ -7,11 +7,11 @@ class Port(QtGui.QGraphicsPathItem):
 
     def __init__(self, parent, scene):
         super(Port, self).__init__(parent, scene)
-        self.name = "port"
+        self._name = "port"
+        self._is_output = False
 
         self.block = None
         self.connections = []
-        self.is_output = False
         self.port_flags = []
 
         self.radius_ = 5
@@ -25,31 +25,31 @@ class Port(QtGui.QGraphicsPathItem):
         self._path.addEllipse(-self.radius_, -self.radius_,
                               2 * self.radius_, 2 * self.radius_)
         self.setPath(self._path)
-        self.setPen(QtCore.Qt.darkRed)
+        self.setPen(QtGui.QPen(QtCore.Qt.darkRed))
         self.setBrush(QtCore.Qt.red)
         self.setFlag(QtGui.QGraphicsItem.ItemSendsScenePositionChanges)
 
     @property
     def name(self):
-        return self.name
+        return self._name
 
     @name.setter
     def name(self, name):
-        self.name = name
+        self._name = name
         self._label.setPlainText(name)
 
     @property
     def is_output(self):
-        return self.is_output
+        return self._is_output
 
     @is_output.setter
     def is_output(self, is_output):
-        self.is_output = is_output
+        self._is_output = is_output
         # Adapt label size.
         if is_output:
             self._label.setPos(
-                -self.radius_ - self.margin - self.label.boundingRect().width(),
-                -self.label.boundingRect().height() / 2)
+                -self.radius_ - self.margin - self._label.boundingRect().width(),
+                -self._label.boundingRect().height() / 2)
         else:
             self._label.setPos(self.radius_ + self.margin,
                                self._label.boundingRect().height() / 2)

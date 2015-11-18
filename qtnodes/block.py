@@ -9,7 +9,6 @@ class Block(QtGui.QGraphicsPathItem):
 
     def __init__(self, parent, scene):
         super(Block, self).__init__(parent, scene)
-
         self.horizontal_margin = 20
         self.vertical_margin = 5
 
@@ -28,8 +27,10 @@ class Block(QtGui.QGraphicsPathItem):
         self.setFlag(self.ItemIsMovable)
         self.setFlag(self.ItemIsSelectable)
 
-    def add_port(self, name, is_output, flags):
-        port = Port(self)
+    def add_port(self, name, is_output, flags=None):
+        if not flags:
+            flags = []
+        port = Port(self, self.scene())
         port.name = name
         port.is_output = is_output
         port.block = self
@@ -47,15 +48,15 @@ class Block(QtGui.QGraphicsPathItem):
                          self.width, self.height, 5, 5)
         self.setPath(p)
 
-        y = -self.height / 2 + self.vertical_margin + port.radius()
-        for thing in self.children():
+        y = -self.height / 2 + self.vertical_margin + port.radius_
+        for thing in self.childItems():
             if not isinstance(thing, Port):
                 continue
             port_ = thing
             if port_.is_output:
-                port_.setPos(self.width / 2 + port.radius(), y)
+                port_.setPos(self.width / 2 + port.radius_, y)
             else:
-                port.setPos(-self.width / 2 - port.radius(), y)
+                port.setPos(-self.width / 2 - port.radius_, y)
             y += h
         return port
 
@@ -99,7 +100,7 @@ class Block(QtGui.QGraphicsPathItem):
                 ports.append(thing)
         return ports
 
-    def itemChange(change, value):
+    def itemChange(self, change, value):
         return value
 
     def save(self):

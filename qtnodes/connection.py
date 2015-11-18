@@ -8,11 +8,11 @@ class Connection(QtGui.QGraphicsPathItem):
     def __init__(self, parent, scene):
         super(Connection, self).__init__(parent, scene)
 
-        self.pos1 = None
-        self.pos1 = None
+        self._pos1 = None
+        self._pos1 = None
 
-        self.port1 = False
-        self.port2 = False
+        self._port1 = False
+        self._port2 = False
 
         self.setup()
 
@@ -23,21 +23,21 @@ class Connection(QtGui.QGraphicsPathItem):
 
     @property
     def port1(self):
-        return self.port1
+        return self._port1
 
     @port1.setter
     def port1(self, port):
-        self.port1 = port
-        self.port1.connections.append(self)
+        self._port1 = port
+        self._port1.connections.append(self)
 
     @property
     def port2(self):
-        return self.port2
+        return self._port2
 
     @port2.setter
     def port2(self, port):
-        self.port2 = port
-        self.port2.connections.append(self)
+        self._port2 = port
+        self._port2.connections.append(self)
 
     def update_pos_from_ports(self):
         self.pos1 = self.port1.scenePos()

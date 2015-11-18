@@ -7,6 +7,7 @@ from block import Block
 
 
 class Editor(QtCore.QObject):
+    """The editor handles node events for the installed scene."""
 
     def __init__(self, parent):
         super(Editor, self).__init__(parent)
