@@ -1,3 +1,4 @@
+import os
 import sys
 import random
 
@@ -11,7 +12,7 @@ from connection import Connection
 from editor import Editor
 
 
-UI_FILE = "mainwindow.ui"
+UI_FILE = os.path.join(os.path.dirname(__file__), "mainwindow.ui")
 
 
 class MainWindow(QtGui.QMainWindow):
