@@ -7,8 +7,6 @@ from PySide import QtGui
 from libs.pyside_dynamic import loadUi
 
 from block import Block
-from port import Port
-from connection import Connection
 from editor import Editor
 
 
