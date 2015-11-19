@@ -66,6 +66,7 @@ class Editor(QtCore.QObject):
                         self.conn.update_path()
                         self.conn = None
                         return True
+                self.conn.remove()
                 self.conn = None
                 return True
         return super(Editor, self).eventFilter(obj, event)
