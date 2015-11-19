@@ -20,39 +20,38 @@ class Editor(QtCore.QObject):
 
     def itemAt(self, pos):
         items = self.scene.items(
-            QtGui.QRectF(pos - QtGui.QPointF(1, 1), QtGui.QSize(3, 3)))
+            QtCore.QRectF(pos - QtCore.QPointF(1, 1), QtCore.QSize(3, 3)))
         for item in items:
-            if isinstance(item, QtGui.QGraphicsItems):
+            if isinstance(item, QtGui.QGraphicsItem):
                 return item
         return None
 
     def eventFilter(self, obj, event):
-        me = QtGui.QGraphicsSceneMouseEvent(event.type())
-        if event.type == QtCore.QEvent.GraphicsSceneMousePress:
-            btn = me.button()
-            if btn == QtCore.QEvent.LeftButton:
-                item = self.itemAt(me.scenePos())
+        if event.type() == QtCore.QEvent.GraphicsSceneMousePress:
+            btn = event.button()
+            if btn == QtCore.Qt.LeftButton:
+                item = self.itemAt(event.scenePos())
                 if isinstance(item, Port):
                     self.conn = Connection(None, self.scene)
                     self.conn.port1 = item
                     self.conn.pos1 = item.scenePos()
-                    self.conn.pos2 = me.scenePos()
+                    self.conn.pos2 = event.scenePos()
                     self.conn.update_path()
                     return True
                 if isinstance(item, Block):
                     pass
-            elif btn == QtCore.QEvent.RightButton:
-                item = self.itemAt(me.scenePos())
+            elif btn == QtCore.Qt.RightButton:
+                item = self.itemAt(event.scenePos())
                 if isinstance(item, Connection) or isinstance(item, Block):
-                    del item
-        elif event.type == QtCore.QEvent.GraphicsSceneMouseMove:
+                    item.remove()
+        elif event.type() == QtCore.QEvent.GraphicsSceneMouseMove:
             if self.conn:
-                self.conn.pos2 = me.scenePos()
+                self.conn.pos2 = event.scenePos()
                 self.conn.update_path()
                 return True
-        elif event.type == QtCore.QEvent.GraphicsSceneMouseRelease:
-            if self.conn and me.button() == QtCore.QEvent.LeftButton:
-                item = self.itemAt(me.scenePos())
+        elif event.type() == QtCore.QEvent.GraphicsSceneMouseRelease:
+            if self.conn and event.button() == QtCore.Qt.LeftButton:
+                item = self.itemAt(event.scenePos())
                 if isinstance(item, Port):
                     port1 = self.conn.port1
                     port2 = item
