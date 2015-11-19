@@ -15,7 +15,8 @@ class Connection(QtGui.QGraphicsPathItem):
         self._port2 = False
 
         self.line_color = QtCore.Qt.black
-        self.thickness = 3
+        self.hover_color = QtCore.Qt.yellow
+        self.thickness = 2
 
         self.setup()
 
@@ -53,10 +54,10 @@ class Connection(QtGui.QGraphicsPathItem):
         dx = self.pos2.x() - self.pos1.x()
         dy = self.pos2.y() - self.pos1.y()
 
-        ctr1 = QtCore.QPointF(self.pos1.x() + dx * 0.25,
-                              self.pos().y() + dy * 0.1)
-        ctr2 = QtCore.QPointF(self.pos1.x() + dx * 0.75,
-                              self.pos().y() + dy * 0.9)
+        ctr1 = QtCore.QPointF(self.pos1.x() + dx * 0.35,
+                              self.pos1.y() + dy * 0.1)
+        ctr2 = QtCore.QPointF(self.pos1.x() + dx * 0.65,
+                              self.pos1.y() + dy * 0.9)
         p.cubicTo(ctr1, ctr2, self.pos2)
         self.setPath(p)
 
