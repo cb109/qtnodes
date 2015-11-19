@@ -18,6 +18,11 @@ class Connection(QtGui.QGraphicsPathItem):
         self.hover_color = QtCore.Qt.yellow
         self.thickness = 2
 
+        self.curv1 = 0.35
+        self.curv2 = 0.1
+        self.curv3 = 0.65
+        self.curv4 = 0.9
+
         self.setup()
 
     def setup(self):
@@ -54,10 +59,10 @@ class Connection(QtGui.QGraphicsPathItem):
         dx = self.pos2.x() - self.pos1.x()
         dy = self.pos2.y() - self.pos1.y()
 
-        ctr1 = QtCore.QPointF(self.pos1.x() + dx * 0.35,
-                              self.pos1.y() + dy * 0.1)
-        ctr2 = QtCore.QPointF(self.pos1.x() + dx * 0.65,
-                              self.pos1.y() + dy * 0.9)
+        ctr1 = QtCore.QPointF(self.pos1.x() + dx * self.curv1,
+                              self.pos1.y() + dy * self.curv2)
+        ctr2 = QtCore.QPointF(self.pos1.x() + dx * self.curv3,
+                              self.pos1.y() + dy * self.curv4)
         p.cubicTo(ctr1, ctr2, self.pos2)
         self.setPath(p)
 
