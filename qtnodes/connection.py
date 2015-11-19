@@ -17,7 +17,7 @@ class Connection(QtGui.QGraphicsPathItem):
         self.setup()
 
     def setup(self):
-        self.setPen(QtCore.Qt.black, 2)
+        self.setPen(QtGui.QPen(QtCore.Qt.black, 2))
         self.setBrush(QtCore.Qt.NoBrush)
         self.setZValue(-1)
 
@@ -44,18 +44,32 @@ class Connection(QtGui.QGraphicsPathItem):
         self.pos2 = self.port2.scenePos()
 
     def update_path(self):
-        p = QtGui.QPainerPath()
+        p = QtGui.QPainterPath()
         p.moveTo(self.pos1)
 
         dx = self.pos2.x() - self.pos1.x()
         dy = self.pos2.y() - self.pos1.y()
 
-        ctr1 = QtGui.QPointF(self.pos1.x() + dx * 0.25,
-                             self.pos.y() + dy * 0.1)
-        ctr2 = QtGui.QPointF(self.pos1.x() + dx * 0.75,
-                             self.pos.y() + dy * 0.9)
+        ctr1 = QtCore.QPointF(self.pos1.x() + dx * 0.25,
+                              self.pos().y() + dy * 0.1)
+        ctr2 = QtCore.QPointF(self.pos1.x() + dx * 0.75,
+                              self.pos().y() + dy * 0.9)
         p.cubicTo(ctr1, ctr2, self.pos2)
         self.setPath(p)
+
+    def remove(self):
+        try:
+            self.port1.connection.remove(self)
+        except (AttributeError, ValueError):
+            pass
+        try:
+            self.port2.connection.remove(self)
+        except (AttributeError, ValueError):
+            pass
+        try:
+            self.scene().removeItem(self)
+        except AttributeError:
+            pass
 
     def save(self):
         pass

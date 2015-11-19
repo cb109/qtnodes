@@ -100,6 +100,11 @@ class Block(QtGui.QGraphicsPathItem):
                 ports.append(thing)
         return ports
 
+    def remove(self):
+        for thing in self.childItems():
+            thing.remove()
+        self.scene().removeItem(self)
+
     def itemChange(self, change, value):
         return value
 

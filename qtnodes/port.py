@@ -64,6 +64,14 @@ class Port(QtGui.QGraphicsPathItem):
                 return True
         return False
 
+    def remove(self):
+        for conn in self.connections:
+            conn.remove()
+        try:
+            self.scene().removeItem(self)
+        except AttributeError:
+            pass
+
     def itemChange(self, change, value):
         if change == self.ItemScenePositionHasChanged:
             for conn in self.connections:
