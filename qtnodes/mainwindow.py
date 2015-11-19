@@ -28,15 +28,15 @@ class MainWindow(QtGui.QMainWindow):
 
         b = Block(None, scene)
 
-        b.add_port("test", style="bold")
-        b.add_port("TestBlock", style="italic")
+        b.add_port("Operator 1", style="bold")
+        b.add_port("Magic inside", style="italic")
 
-        b.add_input_port("in1")
-        b.add_input_port("in2")
-        b.add_input_port("in3")
-        b.add_output_port("out1")
-        b.add_output_port("out2")
-        b.add_output_port("out3")
+        b.add_input_port("input 1")
+        b.add_input_port("input 2")
+        b.add_input_port("input 3")
+        b.add_output_port("output 1")
+        b.add_output_port("output 2")
+        b.add_output_port("output 3")
 
         b = b.clone()
         b.setPos(150, 150)

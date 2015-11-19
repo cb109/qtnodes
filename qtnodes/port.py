@@ -25,7 +25,7 @@ class Port(QtGui.QGraphicsPathItem):
         self.setup()
 
     def setup(self):
-        self._label = QtGui.QGraphicsTextItem(self)
+        self.label = QtGui.QGraphicsTextItem(self)
         self._path = QtGui.QPainterPath()
         self._path.addEllipse(-self.radius_, -self.radius_,
                               2 * self.radius_, 2 * self.radius_)
@@ -39,7 +39,7 @@ class Port(QtGui.QGraphicsPathItem):
             font.setItalic(True)
         elif self.style == "bold":
             font.setBold(True)
-        self._label.setFont(font)
+        self.label.setFont(font)
         self.setPath(QtGui.QPainterPath())
 
     @property
@@ -49,7 +49,7 @@ class Port(QtGui.QGraphicsPathItem):
     @name.setter
     def name(self, name):
         self._name = name
-        self._label.setPlainText(name)
+        self.label.setPlainText(name)
 
     @property
     def is_output(self):
@@ -60,14 +60,14 @@ class Port(QtGui.QGraphicsPathItem):
         self._is_output = is_output
         # Adapt label size, pos and color.
         if is_output:
-            self._label.setPos(
-                -self.radius_ - self.margin - self._label.boundingRect().width(),
-                -self._label.boundingRect().height() / 2)
+            self.label.setPos(
+                -self.radius_ - self.margin - self.label.boundingRect().width(),
+                -self.label.boundingRect().height() / 2)
             self.setPen(QtGui.QPen(self.line_color))
             self.setBrush(self.output_color)
         else:
-            self._label.setPos(self.radius_ + self.margin,
-                               -self._label.boundingRect().height() / 2)
+            self.label.setPos(self.radius_ + self.margin,
+                               -self.label.boundingRect().height() / 2)
             self.setPen(QtGui.QPen(self.line_color))
             self.setBrush(self.input_color)
 

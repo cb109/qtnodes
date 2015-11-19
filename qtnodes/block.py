@@ -34,7 +34,7 @@ class Block(QtGui.QGraphicsPathItem):
         port.is_output = is_output
         port.block = self
 
-        fm = QtGui.QFontMetrics(self.scene().font())
+        fm = QtGui.QFontMetrics(port.label.font())
         w = fm.width(name)
         h = fm.height()
         if w > self.width - self.horizontal_margin:
