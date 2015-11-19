@@ -1,4 +1,6 @@
-[ ] handle flags or some way to add labels (bold and italic). maybe we don't have to use ports for that.
-[ ] fix handling of the other mouse events.
+[x] handle flags or some way to add labels (bold and italic). maybe we don't have to use ports for that.
+[x] fix handling of the other mouse events.
 [ ] implement save/load to/from json.
 [ ] add documentation.
+[ ] cleanup methods and attributes in a consistent way.
+[ ] add event hooks for things like connecting, removing, hovering, clicking...
