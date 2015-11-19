@@ -14,10 +14,13 @@ class Connection(QtGui.QGraphicsPathItem):
         self._port1 = False
         self._port2 = False
 
+        self.line_color = QtCore.Qt.black
+        self.thickness = 3
+
         self.setup()
 
     def setup(self):
-        self.setPen(QtGui.QPen(QtCore.Qt.black, 2))
+        self.setPen(QtGui.QPen(self.line_color, self.thickness))
         self.setBrush(QtCore.Qt.NoBrush)
         self.setZValue(-1)
 

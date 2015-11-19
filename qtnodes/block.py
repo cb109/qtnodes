@@ -15,15 +15,16 @@ class Block(QtGui.QGraphicsPathItem):
         self.width = self.horizontal_margin
         self.height = self.vertical_margin
 
+        self.line_color = QtCore.Qt.darkGray
+        self.fill_color = QtCore.Qt.lightGray
+        self.hover_color = QtCore.Qt.yellow
+
         self.setup()
 
     def setup(self):
         p = QtGui.QPainterPath()
         p.addRoundedRect(-50, -15, 100, 30, 5, 5)
         self.setPath(p)
-
-        self.setPen(QtGui.QPen(QtCore.Qt.darkGreen))
-        self.setBrush(QtCore.Qt.green)
         self.setFlag(self.ItemIsMovable)
         self.setFlag(self.ItemIsSelectable)
 
@@ -73,11 +74,11 @@ class Block(QtGui.QGraphicsPathItem):
 
     def paint(self, painter, option, widget):
         if self.isSelected():
-            painter.setPen(QtGui.QPen(QtCore.Qt.darkYellow))
-            painter.setBrush(QtCore.Qt.yellow)
+            painter.setPen(QtGui.QPen(self.line_color))
+            painter.setBrush(self.hover_color)
         else:
-            painter.setPen(QtGui.QPen(QtCore.Qt.darkGreen))
-            painter.setBrush(QtCore.Qt.green)
+            painter.setPen(QtGui.QPen(self.line_color))
+            painter.setBrush(self.fill_color)
         painter.drawPath(self.path())
 
     def clone(self):

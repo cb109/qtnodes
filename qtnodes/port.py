@@ -17,6 +17,11 @@ class Port(QtGui.QGraphicsPathItem):
         self.radius_ = 5
         self.margin = 2
 
+        self.line_color = QtCore.Qt.darkGray
+        self.input_color = QtCore.Qt.green
+        self.output_color = QtCore.Qt.red
+        self.hover_color = QtCore.Qt.yellow
+
         self.setup()
 
     def setup(self):
@@ -25,8 +30,6 @@ class Port(QtGui.QGraphicsPathItem):
         self._path.addEllipse(-self.radius_, -self.radius_,
                               2 * self.radius_, 2 * self.radius_)
         self.setPath(self._path)
-        self.setPen(QtGui.QPen(QtCore.Qt.darkRed))
-        self.setBrush(QtCore.Qt.red)
         self.setFlag(QtGui.QGraphicsItem.ItemSendsScenePositionChanges)
 
         if self.style == "default":
@@ -55,14 +58,18 @@ class Port(QtGui.QGraphicsPathItem):
     @is_output.setter
     def is_output(self, is_output):
         self._is_output = is_output
-        # Adapt label size.
+        # Adapt label size, pos and color.
         if is_output:
             self._label.setPos(
                 -self.radius_ - self.margin - self._label.boundingRect().width(),
                 -self._label.boundingRect().height() / 2)
+            self.setPen(QtGui.QPen(self.line_color))
+            self.setBrush(self.output_color)
         else:
             self._label.setPos(self.radius_ + self.margin,
                                -self._label.boundingRect().height() / 2)
+            self.setPen(QtGui.QPen(self.line_color))
+            self.setBrush(self.input_color)
 
     def is_connected(self, other_port):
         for conn in self.connections:
