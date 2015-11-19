@@ -27,14 +27,11 @@ class Block(QtGui.QGraphicsPathItem):
         self.setFlag(self.ItemIsMovable)
         self.setFlag(self.ItemIsSelectable)
 
-    def add_port(self, name, is_output, flags=None):
-        if not flags:
-            flags = []
-        port = Port(self, self.scene())
+    def add_port(self, name, is_output=False, style="default"):
+        port = Port(self, self.scene(), style=style)
         port.name = name
         port.is_output = is_output
         port.block = self
-        port.flags = flags
 
         fm = QtGui.QFontMetrics(self.scene().font())
         w = fm.width(name)
@@ -54,9 +51,9 @@ class Block(QtGui.QGraphicsPathItem):
                 continue
             port_ = thing
             if port_.is_output:
-                port_.setPos(self.width / 2 + port.radius_, y)
+                port_.setPos(self.width / 2 + port_.radius_, y)
             else:
-                port.setPos(-self.width / 2 - port.radius_, y)
+                port_.setPos(-self.width / 2 - port_.radius_, y)
             y += h
         return port
 
@@ -89,7 +86,7 @@ class Block(QtGui.QGraphicsPathItem):
             if not isinstance(thing, Port):
                 continue
             port = thing
-            b.add_port(port.name, port.is_output, port.flags)
+            b.add_port(port.name, port.is_output, style=port.style)
         return b
 
     @property

@@ -27,8 +27,10 @@ class MainWindow(QtGui.QMainWindow):
         self.graphicsView.setRenderHint(QtGui.QPainter.Antialiasing)
 
         b = Block(None, scene)
-        b.add_port("test", None, None)  # TODO add bold label flag
-        b.add_port("TestBlock", None, None)  # TODO add italic label flag
+
+        b.add_port("test", style="bold")
+        b.add_port("TestBlock", style="italic")
+
         b.add_input_port("in1")
         b.add_input_port("in2")
         b.add_input_port("in3")

@@ -5,14 +5,14 @@ from PySide import QtCore
 class Port(QtGui.QGraphicsPathItem):
     """A port is attached to a node and accepts connections."""
 
-    def __init__(self, parent, scene):
+    def __init__(self, parent, scene, style="default"):
         super(Port, self).__init__(parent, scene)
         self._name = "port"
         self._is_output = False
 
+        self.style = style  # 'default', 'italic', 'bold'
         self.block = None
         self.connections = []
-        self.port_flags = []
 
         self.radius_ = 5
         self.margin = 2
@@ -28,6 +28,16 @@ class Port(QtGui.QGraphicsPathItem):
         self.setPen(QtGui.QPen(QtCore.Qt.darkRed))
         self.setBrush(QtCore.Qt.red)
         self.setFlag(QtGui.QGraphicsItem.ItemSendsScenePositionChanges)
+
+        if self.style == "default":
+            return
+        font = self.scene().font()
+        if self.style == "italic":
+            font.setItalic(True)
+        elif self.style == "bold":
+            font.setBold(True)
+        self._label.setFont(font)
+        self.setPath(QtGui.QPainterPath())
 
     @property
     def name(self):
@@ -52,11 +62,7 @@ class Port(QtGui.QGraphicsPathItem):
                 -self._label.boundingRect().height() / 2)
         else:
             self._label.setPos(self.radius_ + self.margin,
-                               self._label.boundingRect().height() / 2)
-
-    #
-    # TODO: Handle port flags and change of appearance based of them.
-    #
+                               -self._label.boundingRect().height() / 2)
 
     def is_connected(self, other_port):
         for conn in self.connections:
@@ -75,6 +81,9 @@ class Port(QtGui.QGraphicsPathItem):
     def itemChange(self, change, value):
         if change == self.ItemScenePositionHasChanged:
             for conn in self.connections:
-                conn.update_pos_from_ports()
-                conn.update_path()
+                try:
+                    conn.update_pos_from_ports()
+                    conn.update_path()
+                except AttributeError:
+                    self.connections.remove(conn)
         return value
