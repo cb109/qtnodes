@@ -11,6 +11,7 @@ class Block(QtGui.QGraphicsPathItem):
         super(Block, self).__init__(parent, scene)
         self.horizontal_margin = 20
         self.vertical_margin = 5
+        self.corner_roundness = 5
 
         self.width = self.horizontal_margin
         self.height = self.vertical_margin
@@ -23,7 +24,8 @@ class Block(QtGui.QGraphicsPathItem):
 
     def setup(self):
         p = QtGui.QPainterPath()
-        p.addRoundedRect(-50, -15, 100, 30, 5, 5)
+        p.addRoundedRect(-50, -15, 100, 30,
+                         self.corner_roundness, self.corner_roundness)
         self.setPath(p)
         self.setFlag(self.ItemIsMovable)
         self.setFlag(self.ItemIsSelectable)
@@ -43,7 +45,8 @@ class Block(QtGui.QGraphicsPathItem):
 
         p = QtGui.QPainterPath()
         p.addRoundedRect(-self.width / 2, -self.height / 2,
-                         self.width, self.height, 5, 5)
+                         self.width, self.height,
+                         self.corner_roundness, self.corner_roundness)
         self.setPath(p)
 
         y = -self.height / 2 + self.vertical_margin + port.radius_
