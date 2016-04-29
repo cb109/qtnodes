@@ -1,8 +1,10 @@
 from PySide import QtGui
 from PySide import QtCore
 
+from event import EventMixin
 
-class Connection(QtGui.QGraphicsPathItem):
+
+class Connection(QtGui.QGraphicsPathItem, EventMixin):
     """Connects one port to another."""
 
     def __init__(self, parent, scene):

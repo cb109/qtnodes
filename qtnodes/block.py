@@ -2,9 +2,10 @@ from PySide import QtGui
 from PySide import QtCore
 
 from port import Port
+from event import EventMixin
 
 
-class Block(QtGui.QGraphicsPathItem):
+class Block(QtGui.QGraphicsPathItem, EventMixin):
     """A block holds ports that can be connected to."""
 
     def __init__(self, parent, scene):
@@ -22,6 +23,9 @@ class Block(QtGui.QGraphicsPathItem):
 
         self.setup()
 
+    def report(self, event):
+        print "something happened:", event.type()
+
     def setup(self):
         p = QtGui.QPainterPath()
         p.addRoundedRect(-50, -15, 100, 30,
@@ -29,6 +33,10 @@ class Block(QtGui.QGraphicsPathItem):
         self.setPath(p)
         self.setFlag(self.ItemIsMovable)
         self.setFlag(self.ItemIsSelectable)
+
+        # self.mouse_pressed.connect(self.report)
+        # self.mouse_moved.connect(self.report)
+        # self.mouse_released.connect(self.report)
 
     def add_port(self, name, is_output=False, style="default"):
         port = Port(self, self.scene(), style=style)

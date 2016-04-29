@@ -31,6 +31,10 @@ class Editor(QtCore.QObject):
             btn = event.button()
             if btn == QtCore.Qt.LeftButton:
                 item = self.itemAt(event.scenePos())
+                try:
+                    item.mouse_pressed.emit(event)
+                except Exception as err:
+                    print err
                 if item and isinstance(item, Port):
                     self.conn = Connection(None, self.scene)
                     self.conn.port1 = item
@@ -42,19 +46,32 @@ class Editor(QtCore.QObject):
                     pass
             elif btn == QtCore.Qt.RightButton:
                 item = self.itemAt(event.scenePos())
+                try:
+                    item.mouse_pressed.emit(event)
+                except Exception as err:
+                    print err
                 if item:
                     if isinstance(item, Connection) or isinstance(item, Block):
                         item.remove()
 
         elif event.type() == QtCore.QEvent.GraphicsSceneMouseMove:
+            item = self.itemAt(event.scenePos())
+            try:
+                item.mouse_moved.emit(event)
+            except Exception as err:
+                print err
             if self.conn:
                 self.conn.pos2 = event.scenePos()
                 self.conn.update_path()
                 return True
 
         elif event.type() == QtCore.QEvent.GraphicsSceneMouseRelease:
+            item = self.itemAt(event.scenePos())
+            try:
+                item.mouse_released.emit(event)
+            except Exception as err:
+                print err
             if self.conn and event.button() == QtCore.Qt.LeftButton:
-                item = self.itemAt(event.scenePos())
                 if item and isinstance(item, Port):
                     port1 = self.conn.port1
                     port2 = item

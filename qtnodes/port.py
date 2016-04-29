@@ -1,8 +1,10 @@
 from PySide import QtGui
 from PySide import QtCore
 
+from event import EventMixin
 
-class Port(QtGui.QGraphicsPathItem):
+
+class Port(QtGui.QGraphicsPathItem, EventMixin):
     """A port is attached to a node and accepts connections."""
 
     def __init__(self, parent, scene, style="default"):
