@@ -16,6 +16,10 @@ class UnknownFlowError(QtNodesError):
     """The flow style can not be recognized."""
 
 
+class KnobConnectionError(QtNodesError):
+    """Something went wrong while trying to connect two Knobs."""
+
+
 def getTextSize(text, painter=None):
     """Return a QSize based on given string.
 
@@ -31,7 +35,7 @@ def getTextSize(text, painter=None):
 
 
 class Knob(QtGui.QGraphicsItem):
-    """A Knob is a child of a Node and can be connected to other Knobs."""
+    """A Knob is a socket of a Node and can be connected to other Knobs."""
 
     def __init__(self, *args, **kwargs):
         super(Knob, self).__init__()
@@ -45,8 +49,11 @@ class Knob(QtGui.QGraphicsItem):
         self.labelText = kwargs.get("labelText", "value")
         self.labelColor = kwargs.get("labelColor", QtGui.QColor(10, 10, 10))
         self.fillColor = kwargs.get("fillColor", QtGui.QColor(130, 130, 130))
+        self.highlightColor = kwargs.get("highlightColor",
+                                         QtGui.QColor(255, 255, 0))
 
-        self.edges = set()
+        self.newEdge = None
+        self.edges = []
 
         self.setAcceptHoverEvents(True)
         self.setAcceptTouchEvents(True)
@@ -56,7 +63,7 @@ class Knob(QtGui.QGraphicsItem):
         """Toggle highlight color."""
         if toggle:
             self._oldFillColor = self.fillColor
-            self.fillColor = QtGui.QColor(255, 255, 0)
+            self.fillColor = self.highlightColor
         else:
             self.fillColor = self._oldFillColor
 
@@ -76,6 +83,71 @@ class Knob(QtGui.QGraphicsItem):
         self.highlight(False)
         super(Knob, self).hoverLeaveEvent(event)
 
+    def mousePressEvent(self, event):
+        """Handle Edge creation."""
+        btn = event.button()
+
+        # If a knob is clicked, create a new Edge.
+        if btn == QtCore.Qt.MouseButton.LeftButton:
+            print("create edge")
+
+            self.newEdge = Edge()
+            self.newEdge.knob1 = self
+            self.newEdge.pos2 = event.scenePos()
+            self.newEdge.updatePath()
+
+            # Make sure this is removed if the user cancels.
+            self.addEdge(self.newEdge)
+            return
+
+        super(Knob, self).mouseMoveEvent(event)
+
+    def mouseMoveEvent(self, event):
+        """Update Edge position when currently creating one."""
+        if self.newEdge:
+            print("update edge")
+            self.newEdge.pos2 = event.scenePos()
+            self.newEdge.updatePath()
+
+    def mouseReleaseEvent(self, event):
+        """Update Edge position when currently creating one."""
+        node = self.parentItem()
+        scene = node.scene()
+        target = scene.itemAt(event.scenePos())
+        try:
+            if self.newEdge and target:
+                if self.newEdge.knob1 is target:
+                    raise KnobConnectionError(
+                        "Can't connect a Knob to itself.")
+
+                if isinstance(target, Knob):
+                    if type(self) == type(target):
+                        raise KnobConnectionError(
+                            "Can't connect Knobs of same type.")
+
+                    newConn = set([self, target])
+                    for edge in self.edges:
+                        existingConn = set([edge.knob1, edge.knob2])
+                        diff = existingConn.difference(newConn)
+                        if not diff:
+                            raise KnobConnectionError(
+                                "Connection already exists.")
+                            return
+
+                    print("finalize edge")
+                    target.addEdge(self.newEdge)
+                    self.newEdge.knob2 = target
+                    self.newEdge.updatePath()
+                    self.newEdge = None
+                    return
+
+            raise KnobConnectionError("Edge creation cancelled by user.")
+        except KnobConnectionError as err:
+            print(err)
+            # Abort Edge creation and do some cleanup.
+            self.removeEdge(self.newEdge)
+            self.newEdge = None
+
     def boundingRect(self):
         rect = QtCore.QRect(self.x,
                             self.y,
@@ -91,8 +163,6 @@ class Knob(QtGui.QGraphicsItem):
         painter.setBrush(QtGui.QBrush(self.fillColor))
         painter.drawRect(bbox)
 
-        painter.setPen(QtGui.QPen(self.labelColor))
-
         # Draw a text label next to it. Position depends on the flow.
         textSize = getTextSize(self.labelText, painter=painter)
         if self.flow == FLOW_LEFT_TO_RIGHT:
@@ -104,10 +174,11 @@ class Knob(QtGui.QGraphicsItem):
                 "Flow not recognized: {0}".format(self.flow))
         y = bbox.bottom()
 
+        painter.setPen(QtGui.QPen(self.labelColor))
         painter.drawText(x, y, self.labelText)
 
     def addEdge(self, edge):
-        self.edges.add(edge)
+        self.edges.append(edge)
         scene = self.scene()
         if edge not in scene.items():
             scene.addItem(edge)
@@ -314,7 +385,6 @@ class Node(QtGui.QGraphicsItem):
 
         adjustWidth()
         adjustHeight()
-        self.update()
 
     def addHeader(self, header):
         self.header = header
@@ -400,11 +470,19 @@ class Node(QtGui.QGraphicsItem):
     #     super(Node, self).mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
-        """Update children positions as needed."""
-        knobs = [c for c in self.childItems() if isinstance(c, Knob)]
-        for knob in knobs:
-            for edge in knob.edges:
-                edge.updatePath()
+        """Update selected item's (and children's) positions as needed.
+
+        We cannot just update our own childItems, since we are using
+        RubberBandDrag, and that woudl lead to otherwise e.g. Edges
+        visually lose their connection until an attached Node is moved
+        individually.
+        """
+        items = self.scene().selectedItems()
+        for item in items:
+            knobs = [c for c in item.childItems() if isinstance(c, Knob)]
+            for knob in knobs:
+                for edge in knob.edges:
+                    edge.updatePath()
         super(Node, self).mouseMoveEvent(event)
 
     # def mouseReleaseEvent(self, event):
@@ -495,7 +573,7 @@ class GridView(QtGui.QGraphicsView):
         self.scale(zoom, zoom)
 
         # Assuming we always scale x and y proportionally, expose the
-        # current horizontal scaling factor so other items can read it.
+        # current horizontal scaling factor so other items can use it.
         global CURRENT_ZOOM
         CURRENT_ZOOM = self.transform().m11()
 
@@ -528,91 +606,6 @@ class GridView(QtGui.QGraphicsView):
         painter.drawLines(lines)
 
 
-class SceneEventHandler(QtCore.QObject):
-    """Handle interaction across scene items."""
-
-    def __init__(self, view):
-        super(SceneEventHandler, self).__init__()
-        self.view = view
-
-        self.scene = self.view.scene()
-        self.scene.installEventFilter(self)
-
-        self.temp = {}
-
-    def resetTemp(self):
-        self.temp = {}
-
-    def itemAt(self, pos):
-        items = self.scene.items(
-            QtCore.QRectF(pos - QtCore.QPointF(1, 1), QtCore.QSize(3, 3)))
-        for item in items:
-            if isinstance(item, QtGui.QGraphicsItem):
-                return item
-        return None
-
-    def eventFilter(self, obj, event):
-        try:
-            item = self.itemAt(event.scenePos())
-        except AttributeError:  # event does not support .scenePos()
-            item = None
-
-        if event.type() == QtCore.QEvent.GraphicsSceneMouseRelease:
-            # If currently creating an Edge, finalize it.
-            edge = self.temp.get("edge", None)
-            if edge:
-                if isinstance(item, Knob):
-                    edgeStartKnob = self.temp["knob"]
-                    if item is edgeStartKnob:
-                        print("cant connect a knob to itself")
-                        knob = self.temp["knob"]
-                        edge = self.temp["edge"]
-                        knob.removeEdge(edge)
-                        self.resetTemp()
-                    else:
-                        print("finalize edge")
-                        knob = item
-                        knob.addEdge(edge)
-                        edge.knob2 = knob
-                        edge.updatePath()
-                        self.resetTemp()
-                else:
-                    print("cancel edge")
-                    knob = self.temp["knob"]
-                    edge = self.temp["edge"]
-                    knob.removeEdge(edge)
-                    self.resetTemp()
-
-        elif event.type() == QtCore.QEvent.GraphicsSceneMousePress:
-            btn = event.button()
-
-            # If a knob is clicked, create a new Edge.
-            if (btn == QtCore.Qt.MouseButton.LeftButton and
-                    isinstance(item, Knob)):
-                print("create edge")
-                knob = item
-                edge = Edge()
-                edge.knob1 = knob
-                edge.pos2 = event.scenePos()
-                edge.updatePath()
-                knob.addEdge(edge)
-
-                # Store this temporarily, until mouse release.
-                self.temp["edge"] = edge
-                self.temp["knob"] = knob
-
-        elif event.type() == QtCore.QEvent.GraphicsSceneMouseMove:
-
-            # If currently creating an Edge, update with mouse position.
-            edge = self.temp.get("edge", None)
-            if edge:
-                print("update edge")
-                edge.pos2 = event.scenePos()
-                edge.updatePath()
-
-        return super(SceneEventHandler, self).eventFilter(obj, event)
-
-
 class NodeGraphWidget(QtGui.QWidget):
 
     def __init__(self, parent=None):
@@ -621,8 +614,6 @@ class NodeGraphWidget(QtGui.QWidget):
         self.scene = QtGui.QGraphicsScene()
         self.view = GridView()
         self.view.setScene(self.scene)
-
-        # self.eventhandler = SceneEventHandler(self.view)
 
         self.view.setRenderHint(QtGui.QPainter.Antialiasing)
         self.view.setViewportUpdateMode(
@@ -703,12 +694,31 @@ def test():
 
     nodeInt2.moveBy(100, 250)
     nodeMult.moveBy(200, 100)
-    nodeOut.moveBy(300, 150)
-    nodeBig.moveBy(400, 50)
+    nodeBig.moveBy(300, 50)
+    nodeOut.moveBy(400, 150)
 
     nodeInt1.knob("value").connectTo(nodeMult.knob("x"))
     nodeInt2.knob("value").connectTo(nodeMult.knob("y"))
-    nodeMult.knob("value").connectTo(nodeOut.knob("output"))
+
+    nodeMult.knob("value").connectTo(nodeBig.knob("i1"))
+    nodeMult.knob("value").connectTo(nodeBig.knob("i2"))
+    nodeMult.knob("value").connectTo(nodeBig.knob("i3"))
+    nodeMult.knob("value").connectTo(nodeBig.knob("i4"))
+    nodeMult.knob("value").connectTo(nodeBig.knob("i5"))
+    nodeMult.knob("value").connectTo(nodeBig.knob("i6"))
+    # nodeMult.knob("value").connectTo(nodeBig.knob("i7"))
+    # nodeMult.knob("value").connectTo(nodeBig.knob("i8"))
+    # nodeMult.knob("value").connectTo(nodeBig.knob("i9"))
+
+    nodeBig.knob("o1").connectTo(nodeOut.knob("output"))
+    nodeBig.knob("o2").connectTo(nodeOut.knob("output"))
+    nodeBig.knob("o3").connectTo(nodeOut.knob("output"))
+    nodeBig.knob("o4").connectTo(nodeOut.knob("output"))
+    nodeBig.knob("o5").connectTo(nodeOut.knob("output"))
+    nodeBig.knob("o6").connectTo(nodeOut.knob("output"))
+    # nodeBig.knob("o7").connectTo(nodeOut.knob("output"))
+    # nodeBig.knob("o8").connectTo(nodeOut.knob("output"))
+    # nodeBig.knob("o9").connectTo(nodeOut.knob("output"))
 
     app.exec_()
 
