@@ -681,3 +681,16 @@ def test():
 
 if __name__ == '__main__':
     test()
+
+
+"""
+todos
+
+- get rid of the SceneEventHandler somehow and encapsulate the logic
+  in each respective class
+- that should hopefully enable us to use RubberBandDrag together with
+  creating edges from a knob
+- attach data to nodes and let them modify it
+- save/load a graph to/from json
+
+"""
