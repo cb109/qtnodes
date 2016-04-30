@@ -448,12 +448,46 @@ class GridView(QtGui.QGraphicsView):
         self.xStep = 20
         self.yStep = 20
 
+        self.panningMult = 2.00 * CURRENT_ZOOM
+        self.panning = False
         self.zoomStep = 1.1
 
-        # self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        # self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        # Since we implement custom panning, we don't need the scrollbars.
+        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
         # self.setTransformationAnchor(QtGui.QGraphicsView.AnchorUnderMouse)
+
+    def mousePressEvent(self, event):
+        """Initiate custom panning using middle mouse button."""
+        if event.button() == QtCore.Qt.MiddleButton:
+            print(CURRENT_ZOOM)
+            self.setDragMode(QtGui.QGraphicsView.NoDrag)
+            self.panning = True
+            self.prevPos = event.pos()
+            self.setCursor(QtCore.Qt.SizeAllCursor)
+        elif event.button() == QtCore.Qt.LeftButton:
+            self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
+        super(GridView, self).mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if self.panning:
+            delta = (self.mapToScene(event.pos()) * self.panningMult -
+                     self.mapToScene(self.prevPos) * self.panningMult) * -1.0
+            center = QtCore.QPoint(self.viewport().width() / 2 + delta.x(),
+                                   self.viewport().height() / 2 + delta.y())
+            newCenter = self.mapToScene(center)
+            self.centerOn(newCenter)
+            self.prevPos = event.pos()
+            return
+        super(GridView, self).mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        if self.panning:
+            self.panning = False
+            self.setCursor(QtCore.Qt.ArrowCursor)
+        super(GridView, self).mouseReleaseEvent(event)
 
     def wheelEvent(self, event):
         positive = event.delta() >= 0
