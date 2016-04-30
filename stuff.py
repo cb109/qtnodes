@@ -2,41 +2,172 @@ from PySide import QtGui
 from PySide import QtCore
 
 
-# class Knob(QtGui.QGraphicsItem):
+FLOW_LEFT_TO_RIGHT = "flow_left_to_right"
+FLOW_RIGHT_TO_LEFT = "flow_right_to_left"
 
-#     def __init__(self, parent=None, scene=None):
-#         super(Knob, self).__init__(parent=parent, scene=scene)
 
-#         self.w = 100
-#         self.h = 100
+class QtNodesError(Exception):
+    """Base custom exception."""
+
+
+class UnknownFlowError(QtNodesError):
+    """The flow style can not be recognized."""
+
+
+def getTextSize(text, painter=None):
+    """Return a QSize based on given string.
+
+    If no painter is supplied, the font metrics are based on a default
+    QPainter, which may be off depending on the font und text size used.
+    """
+    if not painter:
+        metrics = QtGui.QFontMetrics(QtGui.QFont())
+    else:
+        metrics = painter.fontMetrics()
+    size = metrics.size(QtCore.Qt.TextSingleLine, text)
+    return size
+
+
+class Knob(QtGui.QGraphicsItem):
+
+    def __init__(self, *args, **kwargs):
+        super(Knob, self).__init__()
+        self.x = kwargs.get("x", 0)
+        self.y = kwargs.get("y", 0)
+        self.w = kwargs.get("w", 10)
+        self.h = kwargs.get("h", 10)
+        self.margin = kwargs.get("margin", 5)
+        self.flow = kwargs.get("margin", FLOW_LEFT_TO_RIGHT)
+
+        self.labelText = kwargs.get("labelText", "value")
+        self.labelColor = kwargs.get("labelColor", QtGui.QColor(10, 10, 10))
+        self.fillColor = kwargs.get("fillColor", QtGui.QColor(130, 130, 130))
+
+        self.setAcceptHoverEvents(True)
+
+    def hoverEnterEvent(self, event):
+        """Change knob rectange color.
+
+        Store the old color in a new attribute, so it can be restored.
+        """
+        self._oldFillColor = self.fillColor
+        self.fillColor = QtGui.QColor(255, 255, 0)
+        super(Knob, self).hoverEnterEvent(event)
+
+    def hoverLeaveEvent(self, event):
+        """Change knob rectange color.
+
+        Retrieve the old color from an attribute to restore it.
+        """
+        self.fillColor = self._oldFillColor
+        super(Knob, self).hoverLeaveEvent(event)
+
+    def boundingRect(self):
+        rect = QtCore.QRect(self.x,
+                            self.y,
+                            self.w,
+                            self.h)
+        return rect
+
+    def paint(self, painter, option, widget):
+        bbox = self.boundingRect()
+
+        # Draw a filled rectangle.
+        painter.setPen(QtGui.QPen(QtCore.Qt.NoPen))
+        painter.setBrush(QtGui.QBrush(self.fillColor))
+        painter.drawRect(bbox)
+
+        painter.setPen(QtGui.QPen(self.labelColor))
+
+        # Draw a text label next to it. Position depends on the flow.
+        textSize = getTextSize(self.labelText, painter=painter)
+        if self.flow == FLOW_LEFT_TO_RIGHT:
+            x = bbox.right() + self.margin
+        elif self.flow == FLOW_RIGHT_TO_LEFT:
+            x = bbox.left() - self.margin - textSize.width()
+        else:
+            raise UnknownFlowError(
+                "Flow not recognized: {0}".format(self.flow))
+        y = bbox.bottom()
+
+        painter.drawText(x, y, self.labelText)
+
+
+class InputKnob(Knob):
+
+    def __init__(self, *args, **kwargs):
+        super(InputKnob, self).__init__(*args, **kwargs)
+        self.labelText = kwargs.get("labelText", "input")
+        self.fillColor = kwargs.get("fillColor", QtGui.QColor(130, 230, 130))
+
+
+class OutputKnob(Knob):
+
+    def __init__(self, *args, **kwargs):
+        super(OutputKnob, self).__init__(*args, **kwargs)
+        self.labelText = kwargs.get("labelText", "output")
+        self.fillColor = kwargs.get("fillColor", QtGui.QColor(230, 130, 130))
+        self.flow = kwargs.get("flow", FLOW_RIGHT_TO_LEFT)
+
+
+class Header(QtGui.QGraphicsItem):
+
+    def __init__(self, node, text, h=20,
+                 fillColor=QtGui.QColor(90, 90, 90),
+                 textColor=QtGui.QColor(240, 240, 240)):
+        super(Header, self).__init__()
+        self.node = node
+        self.text = text
+        self.h = h
+        self.fillColor = fillColor
+        self.textColor = textColor
+
+    def boundingRect(self):
+        nodebox = self.node.boundingRect()
+        rect = QtCore.QRect(self.x(),
+                            self.y(),
+                            nodebox.width(),
+                            self.h)
+        return rect
+
+    def paint(self, painter, option, widget):
+        # Draw background rectangle.
+        bbox = self.boundingRect()
+        painter.setPen(QtGui.QPen(QtCore.Qt.NoPen))
+        painter.setBrush(self.fillColor)
+        painter.drawRect(bbox)
+
+        # Draw header label.
+        painter.setPen(QtGui.QPen(self.textColor))
+
+        # # centered text
+        # textSize = getTextSize(painter, self.text)
+        # painter.drawText(self.x() + (self.node.w - textSize.width()) / 2,
+        #                  self.y() + (self.h + textSize.height() / 2) / 2,
+        #                  self.text)
+
+        # left aligned text
+        textSize = getTextSize(self.text, painter=painter)
+        painter.drawText(self.x() + self.node.margin,
+                         self.y() + (self.h + textSize.height() / 2) / 2,
+                         self.text)
 
 
 class Node(QtGui.QGraphicsItem):
 
-    def __init__(self, parent=None, scene=None):
-        super(Node, self).__init__(parent=parent, scene=scene)
+    def __init__(self):
+        super(Node, self).__init__()
 
-        self.x = -10
-        self.y = -10
-        self.w = 100
-        self.h = 100
+        self.header = None
 
-        self.xRadius = 0
-        self.yRadius = 0
+        self.x = 0
+        self.y = 0
+        self.w = 10
+        self.h = 10
 
-        self.headerHeight = 22
+        self.margin = 6
 
-        self.knobWidth = 10
-        self.knobHeight = 10
-
-        self.brushColor = QtGui.QColor(220, 220, 220)
-        self.brush = QtGui.QBrush(self.brushColor)
-
-        self.penWidth = 1
-        self.penColor = QtGui.QColor(100, 100, 100)
-        # self.pen = QtGui.QPen(self.penColor)
-        self.pen = QtGui.QPen(QtCore.Qt.NoPen)
-        self.pen.setWidth(self.penWidth)
+        self.fillColor = QtGui.QColor(220, 220, 220)
 
         # General configuration.
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
@@ -44,109 +175,72 @@ class Node(QtGui.QGraphicsItem):
 
         self.setAcceptHoverEvents(True)
         self.setAcceptTouchEvents(True)
+        self.setAcceptDrops(True)
 
     def boundingRect(self):
-        return QtCore.QRectF(self.x - self.penWidth / 2,
-                             self.y - self.penWidth / 2,
-                             self.w + self.penWidth,
-                             self.h + self.penWidth)
+        rect = QtCore.QRect(self.x,
+                            self.y,
+                            self.w,
+                            self.h)
+        return rect
+
+    def updateSizeForChildren(self):
+        """Adjust width and height as needed for header and knobs."""
+
+        class NoOpHeader(object):
+            """Stand-in for when there is no header."""
+            h = 0
+            text = ""
+        header = self.header or NoOpHeader()
+
+        def adjustHeight():
+            """Adjust height to fit header and all knobs."""
+            knobs = [c for c in self.childItems() if isinstance(c, Knob)]
+            knobsHeight = sum([k.h + self.margin for k in knobs])
+            heightNeeded = header.h + knobsHeight + self.margin
+            self.h = heightNeeded
+
+        def adjustWidth():
+            """Adjust width as needed for the widest child item."""
+            headerWidth = (self.margin + getTextSize(header.text).width())
+
+            knobs = [c for c in self.childItems() if isinstance(c, Knob)]
+            knobWidths = [k.w + self.margin + getTextSize(k.labelText).width()
+                          for k in knobs]
+            maxWidth = max([headerWidth] + knobWidths)
+            self.w = maxWidth + self.margin
+
+        adjustWidth()
+        adjustHeight()
+        self.update()
+
+    def addHeader(self, header):
+        self.header = header
+        header.setPos(self.pos())
+        header.setParentItem(self)
+        self.updateSizeForChildren()
+
+    def addKnob(self, knob):
+        children = [c for c in self.childItems()]
+        yOffset = sum([c.h + self.margin for c in children])
+        xOffset = self.margin / 2
+
+        knob.setParentItem(self)
+        knob.margin = self.margin
+        self.updateSizeForChildren()
+
+        bbox = self.boundingRect()
+        if isinstance(knob, OutputKnob):
+            knob.setPos(bbox.right() - knob.w + xOffset, yOffset)
+        elif isinstance(knob, InputKnob):
+            knob.setPos(bbox.left() - xOffset, yOffset)
 
     def paint(self, painter, option, widget):
-        painter.setBrush(self.brush)
-        painter.setPen(self.pen)
+        painter.setBrush(QtGui.QBrush(self.fillColor))
+        painter.setPen(QtGui.QPen(QtCore.Qt.NoPen))
 
-        # general stuff
         bbox = self.boundingRect()
-        outwards = 2
-        margin = 5
-
-        # body
-        painter.drawRoundedRect(self.x,
-                                self.y,
-                                self.w,
-                                self.h,
-                                self.xRadius,
-                                self.yRadius)
-
-        # header
-        brush = QtGui.QBrush(QtGui.QColor(90, 90, 90))
-        painter.setBrush(brush)
-        painter.drawRoundedRect(self.x,
-                                self.y,
-                                self.w,
-                                self.headerHeight,
-                                self.xRadius,
-                                self.yRadius)
-
-        # header text
-        pen = QtGui.QPen(QtGui.QColor(240, 240, 240))
-        painter.setPen(pen)
-        painter.drawText(self.x + margin,
-                         self.y + self.headerHeight - margin,
-                         "my_node")
-
-        # input knob
-        inputKnobPosX = bbox.left() - outwards
-        inputKnobPosY = bbox.center().y() - self.headerHeight
-        inputKnobRect = QtCore.QRect(inputKnobPosX,
-                                     inputKnobPosY,
-                                     self.knobWidth,
-                                     self.knobHeight)
-
-        pen = QtGui.QPen(QtCore.Qt.NoPen)
-        brush = QtGui.QBrush(QtGui.QColor(150, 250, 150))
-        painter.setBrush(brush)
-        painter.setPen(pen)
-        painter.drawRoundedRect(inputKnobRect,
-                                self.xRadius,
-                                self.yRadius)
-
-        # input knob text
-        font = painter.font()
-        font.setPixelSize(11)
-        painter.setFont(font)
-
-        brush = QtGui.QBrush(QtGui.QColor(10, 10, 10))
-        pen = QtGui.QPen(brush, 1)
-        painter.setPen(pen)
-
-        painter.drawText(inputKnobPosX + margin + self.knobWidth,
-                         inputKnobPosY + self.knobHeight,
-                         "input")
-
-        # output knob
-        outputKnobPosX = bbox.right() - self.knobWidth + outwards
-        outputKnobPosY = bbox.bottom() - self.headerHeight
-        outputKnobRect = QtCore.QRect(outputKnobPosX,
-                                      outputKnobPosY,
-                                      self.knobWidth,
-                                      self.knobHeight)
-
-        pen = QtGui.QPen(QtCore.Qt.NoPen)
-        brush = QtGui.QBrush(QtGui.QColor(250, 150, 150))
-        painter.setBrush(brush)
-        painter.setPen(pen)
-        painter.drawRoundedRect(outputKnobRect,
-                                self.xRadius,
-                                self.yRadius)
-        # painter.drawEllipse(outputKnobRect)
-
-        # output knob text
-        font = painter.font()
-        font.setPixelSize(11)
-        painter.setFont(font)
-
-        brush = QtGui.QBrush(QtGui.QColor(10, 10, 10))
-        pen = QtGui.QPen(brush, 1)
-        painter.setPen(pen)
-
-        size = painter.fontMetrics().size(QtCore.Qt.TextSingleLine, "output")
-        outputKnobTextWidth = size.width()
-
-        painter.drawText(
-            outputKnobPosX - margin - outputKnobTextWidth,
-            outputKnobPosY + self.knobHeight,
-            "output")
+        painter.drawRect(bbox)
 
     # def sceneEvent(self, event):
     #     print("sceneEvent()", event.type(), event)
@@ -156,57 +250,77 @@ class Node(QtGui.QGraphicsItem):
     #     print("sceneEventFilter()", watched, event.type(), event)
     #     super(Node, self).sceneEventFilter(watched, event)
 
-    def contextMenuEvent(self, event):
-        print("contextMenuEvent()", event.type(), event)
-        super(Node, self).contextMenuEvent(event)
+    # def contextMenuEvent(self, event):
+    #     print("contextMenuEvent()", event.type(), event)
+    #     super(Node, self).contextMenuEvent(event)
 
-    def focusInEvent(self, event):
-        print("focusInEvent()", event.type(), event)
-        super(Node, self).focusInEvent(event)
+    # def focusInEvent(self, event):
+    #     print("focusInEvent()", event.type(), event)
+    #     super(Node, self).focusInEvent(event)
 
-    def focusOutEvent(self, event):
-        print("focusOutEvent()", event.type(), event)
-        super(Node, self).focusOutEvent(event)
+    # def focusOutEvent(self, event):
+    #     print("focusOutEvent()", event.type(), event)
+    #     super(Node, self).focusOutEvent(event)
 
-    def hoverEnterEvent(self, event):
-        print("hoverEnterEvent()", event.type(), event)
-        super(Node, self).hoverEnterEvent(event)
+    # def hoverEnterEvent(self, event):
+    #     print("hoverEnterEvent()", event.type(), event)
+    #     super(Node, self).hoverEnterEvent(event)
 
-    def hoverMoveEvent(self, event):
-        print("hoverMoveEvent()", event.type(), event)
-        super(Node, self).hoverMoveEvent(event)
+    # def hoverMoveEvent(self, event):
+    #     print("hoverMoveEvent()", event.type(), event)
+    #     super(Node, self).hoverMoveEvent(event)
 
-    def hoverLeaveEvent(self, event):
-        print("hoverLeaveEvent()", event.type(), event)
-        super(Node, self).hoverLeaveEvent(event)
+    # def hoverLeaveEvent(self, event):
+    #     print("hoverLeaveEvent()", event.type(), event)
+    #     super(Node, self).hoverLeaveEvent(event)
 
-    def inputMethodEvent(self, event):
-        print("inputMethodEvent()", event.type(), event)
-        super(Node, self).inputMethodEvent(event)
+    # def inputMethodEvent(self, event):
+    #     print("inputMethodEvent()", event.type(), event)
+    #     super(Node, self).inputMethodEvent(event)
 
-    def keyPressEvent(self, event):
-        print("keyPressEvent()", event.type(), event)
-        super(Node, self).keyPressEvent(event)
+    # def keyPressEvent(self, event):
+    #     print("keyPressEvent()", event.type(), event)
+    #     super(Node, self).keyPressEvent(event)
 
-    def keyReleaseEvent(self, event):
-        print("keyReleaseEvent()", event.type(), event)
-        super(Node, self).keyReleaseEvent(event)
+    # def keyReleaseEvent(self, event):
+    #     print("keyReleaseEvent()", event.type(), event)
+    #     super(Node, self).keyReleaseEvent(event)
 
-    def mousePressEvent(self, event):
-        print("mousePressEvent()", event.type(), event)
-        super(Node, self).mousePressEvent(event)
+    # def mousePressEvent(self, event):
+    #     print("mousePressEvent()", event.type(), event)
+    #     super(Node, self).mousePressEvent(event)
 
-    def mouseMoveEvent(self, event):
-        print("mouseMoveEvent()", event.type(), event)
-        super(Node, self).mouseMoveEvent(event)
+    # def mouseMoveEvent(self, event):
+    #     print("mouseMoveEvent()", event.type(), event)
+    #     super(Node, self).mouseMoveEvent(event)
 
-    def mouseReleaseEvent(self, event):
-        print("mouseReleaseEvent()", event.type(), event)
-        super(Node, self).mouseReleaseEvent(event)
+    # def mouseReleaseEvent(self, event):
+    #     print("mouseReleaseEvent()", event.type(), event)
+    #     super(Node, self).mouseReleaseEvent(event)
 
-    def mouseDoubleClickEvent(self, event):
-        print("mouseDoubleClickEvent()", event.type(), event)
-        super(Node, self).mouseDoubleClickEvent(event)
+    # def mouseDoubleClickEvent(self, event):
+    #     print("mouseDoubleClickEvent()", event.type(), event)
+    #     super(Node, self).mouseDoubleClickEvent(event)
+
+    # def wheelEvent(self, event):
+    #     print("wheelEvent()", event.type(), event)
+    #     super(Node, self).wheelEvent(event)
+
+    # def dragEnterEvent(self, event):
+    #     print("dragEnterEvent()", event.type(), event)
+    #     super(Node, self).dragEnterEvent(event)
+
+    # def dragMoveEvent(self, event):
+    #     print("dragMoveEvent()", event.type(), event)
+    #     super(Node, self).dragMoveEvent(event)
+
+    # def dragLeaveEvent(self, event):
+    #     print("dragLeaveEvent()", event.type(), event)
+    #     super(Node, self).dragLeaveEvent(event)
+
+    # def dropEvent(self, event):
+    #     print("dropEvent()", event.type(), event)
+    #     super(Node, self).dropEvent(event)
 
 
 class NodeGraphWidget(QtGui.QWidget):
@@ -220,7 +334,7 @@ class NodeGraphWidget(QtGui.QWidget):
 
         self.view.setRenderHint(QtGui.QPainter.Antialiasing)
         self.view.setViewportUpdateMode(
-            QtGui.QGraphicsView.BoundingRectViewportUpdate)
+            QtGui.QGraphicsView.FullViewportUpdate)
 
         layout = QtGui.QVBoxLayout()
         layout.addWidget(self.view)
@@ -230,14 +344,54 @@ class NodeGraphWidget(QtGui.QWidget):
         self.scene.addItem(node)
 
 
-app = QtGui.QApplication([])
+class Multiply(Node):
 
-graph = NodeGraphWidget()
-graph.setGeometry(100, 100, 640, 480)
-graph.show()
+    def __init__(self):
+        super(Multiply, self).__init__()
+        self.addHeader(Header(node=self, text="Multiply"))
+        self.addKnob(InputKnob(labelText="x"))
+        self.addKnob(InputKnob(labelText="y"))
+        self.addKnob(OutputKnob(labelText="value"))
+        # self.header.fillColor = QtGui.QColor(150, 150, 90)
 
-node1 = Node(scene=graph.scene)
-node2 = Node()
-graph.addNode(node2)
 
-app.exec_()
+class Integer(Node):
+
+    def __init__(self):
+        super(Integer, self).__init__()
+        self.addHeader(Header(node=self, text="Int"))
+        self.addKnob(OutputKnob(labelText="value"))
+        # self.header.fillColor = QtGui.QColor(90, 150, 90)
+
+
+class Float(Node):
+
+    def __init__(self):
+        super(Float, self).__init__()
+        self.addHeader(Header(node=self, text="Float"))
+        self.addKnob(OutputKnob(labelText="value"))
+        # self.header.fillColor = QtGui.QColor(90, 90, 150)
+
+
+def test():
+    app = QtGui.QApplication([])
+
+    graph = NodeGraphWidget()
+    graph.setGeometry(100, 100, 640, 480)
+    graph.show()
+
+    graph.addNode(Integer())
+    graph.addNode(Float())
+    graph.addNode(Multiply())
+    # node1 = Node()
+    # graph.addNode(node1)
+    # node1.addHeader(Header(node=node1, text="Multiply"))
+    # node1.addKnob(InputKnob(labelText="x"))
+    # node1.addKnob(InputKnob(labelText="y"))
+    # node1.addKnob(OutputKnob(labelText="value"))
+
+    app.exec_()
+
+
+if __name__ == '__main__':
+    test()
