@@ -61,10 +61,7 @@ class Knob(QtGui.QGraphicsItem):
 
     def mousePressEvent(self, event):
         """Handle Edge creation."""
-        btn = event.button()
-
-        # If a knob is clicked, create a new Edge.
-        if btn == QtCore.Qt.MouseButton.LeftButton:
+        if event.button() == QtCore.Qt.MouseButton.LeftButton:
             print("create edge")
 
             self.newEdge = Edge()
@@ -85,42 +82,45 @@ class Knob(QtGui.QGraphicsItem):
 
     def mouseReleaseEvent(self, event):
         """Update Edge position when currently creating one."""
-        node = self.parentItem()
-        scene = node.scene()
-        target = scene.itemAt(event.scenePos())
-        try:
-            if self.newEdge and target:
-                if self.newEdge.knob1 is target:
-                    raise KnobConnectionError(
-                        "Can't connect a Knob to itself.")
+        if event.button() == QtCore.Qt.MouseButton.LeftButton:
 
-                if isinstance(target, Knob):
-                    if type(self) == type(target):
+            node = self.parentItem()
+            scene = node.scene()
+            target = scene.itemAt(event.scenePos())
+            try:
+                if self.newEdge and target:
+                    if self.newEdge.knob1 is target:
                         raise KnobConnectionError(
-                            "Can't connect Knobs of same type.")
+                            "Can't connect a Knob to itself.")
 
-                    newConn = set([self, target])
-                    for edge in self.edges:
-                        existingConn = set([edge.knob1, edge.knob2])
-                        diff = existingConn.difference(newConn)
-                        if not diff:
+                    if isinstance(target, Knob):
+                        if type(self) == type(target):
                             raise KnobConnectionError(
-                                "Connection already exists.")
-                            return
+                                "Can't connect Knobs of same type.")
 
-                    print("finalize edge")
-                    target.addEdge(self.newEdge)
-                    self.newEdge.knob2 = target
-                    self.newEdge.updatePath()
-                    self.newEdge = None
-                    return
+                        newConn = set([self, target])
+                        for edge in self.edges:
+                            existingConn = set([edge.knob1, edge.knob2])
+                            diff = existingConn.difference(newConn)
+                            if not diff:
+                                raise KnobConnectionError(
+                                    "Connection already exists.")
+                                return
 
-            raise KnobConnectionError("Edge creation cancelled by user.")
-        except KnobConnectionError as err:
-            print(err)
-            # Abort Edge creation and do some cleanup.
-            self.removeEdge(self.newEdge)
-            self.newEdge = None
+                        print("finalize edge")
+                        target.addEdge(self.newEdge)
+                        self.newEdge.knob2 = target
+                        self.newEdge.updatePath()
+                        self.newEdge = None
+                        return
+
+                raise KnobConnectionError(
+                    "Edge creation cancelled by user.")
+            except KnobConnectionError as err:
+                print(err)
+                # Abort Edge creation and do some cleanup.
+                self.removeEdge(self.newEdge)
+                self.newEdge = None
 
     def boundingRect(self):
         rect = QtCore.QRect(self.x,

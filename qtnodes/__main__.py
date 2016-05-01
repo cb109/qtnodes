@@ -2,7 +2,7 @@
 
 from PySide import QtGui
 
-from .knob import InputKnob, OutputKnob
+from .knob import InputKnob, OutputKnob, Knob
 from .header import Header
 from .node import Node
 from .widget import NodeGraphWidget
@@ -62,9 +62,8 @@ class BigNode(Node):
 class Directory(Node):
 
     def __init__(self, *args, **kwargs):
-        text = kwargs.pop("text")
         super(Directory, self).__init__(*args, **kwargs)
-        self.addHeader(Header(node=self, text=text))
+        self.addHeader(Header(node=self, text="Directory"))
         self.addKnob(InputKnob(labelText="parent"))
         self.addKnob(OutputKnob(labelText="children"))
 
@@ -72,9 +71,8 @@ class Directory(Node):
 class File(Node):
 
     def __init__(self, *args, **kwargs):
-        text = kwargs.pop("text")
         super(File, self).__init__(*args, **kwargs)
-        self.addHeader(Header(node=self, text=text))
+        self.addHeader(Header(node=self, text="File"))
         self.addKnob(InputKnob(labelText="parent"))
 
 
@@ -84,6 +82,11 @@ def test():
     graph = NodeGraphWidget()
     graph.setGeometry(100, 100, 800, 600)
     graph.show()
+
+    graph.registerNodeClass(Integer)
+    graph.registerNodeClass(Multiply)
+    graph.registerNodeClass(Output)
+    graph.registerNodeClass(BigNode)
 
     # d1 = Directory(scene=graph.scene, text="root")
     # d2 = Directory(scene=graph.scene, text="opt")
@@ -154,6 +157,7 @@ if __name__ == '__main__':
 """
 todos
 
+- create, remove, edit nodes
 - that should hopefully enable us to use RubberBandDrag together with
   creating edges from a knob
 - attach data to nodes and let them modify it
