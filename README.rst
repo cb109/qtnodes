@@ -20,7 +20,7 @@ To start a small demo:
 - **Move a node**: Leftclick and drag its header.
 - **Delete a node**: Select it then press ``DELETE``.
 - **Create a connection**: Hover over a knob, then leftclick and drag to another knob. You can only connect inputs to outputs and vice versa.
-- **Remove a connection**: Hold ``CTRL``, the connections turn red, click one to remove it.
+- **Remove a connection**: Hold ``ALT``, the connections turn red, click one to remove it.
 
 Credits
 -------

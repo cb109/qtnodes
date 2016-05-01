@@ -7,6 +7,7 @@ from .edge import Edge
 
 
 CURRENT_ZOOM = 1.0
+ALTERNATE_MODE_KEY = QtCore.Qt.Key.Key_Alt
 
 
 class GridView(QtGui.QGraphicsView):
@@ -40,13 +41,13 @@ class GridView(QtGui.QGraphicsView):
 
     def keyPressEvent(self, event):
         """Trigger a redraw of Edges to update their color."""
-        if event.key() == QtCore.Qt.Key.Key_Control:
+        if event.key() == ALTERNATE_MODE_KEY:
             self._redrawEdges()
         super(GridView, self).keyPressEvent(event)
 
     def keyReleaseEvent(self, event):
         """Trigger a redraw of Edges to update their color."""
-        if event.key() == QtCore.Qt.Key.Key_Control:
+        if event.key() == ALTERNATE_MODE_KEY:
             self._redrawEdges()
         super(GridView, self).keyReleaseEvent(event)
 

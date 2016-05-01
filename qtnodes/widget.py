@@ -28,12 +28,15 @@ class NodeGraphWidget(QtGui.QWidget):
         self.nodeClasses = []
 
     def keyPressEvent(self, event):
-        """Delete selected Nodes."""
+        """React on various keys regarding Nodes."""
+
+        # Delete selected nodes.
         if event.key() == QtCore.Qt.Key.Key_Delete:
             selectedNodes = [i for i in self.scene.selectedItems()
                              if isinstance(i, Node)]
             for node in selectedNodes:
                 node.destroy()
+
         super(NodeGraphWidget, self).keyPressEvent(event)
 
     def contextMenuEvent(self, event):

@@ -4,6 +4,9 @@ from PySide import QtGui
 from PySide import QtCore
 
 
+DELETE_MODIFIER_KEY = QtCore.Qt.AltModifier
+
+
 class Edge(QtGui.QGraphicsPathItem):
     """A connection between two Knobs."""
 
@@ -31,17 +34,16 @@ class Edge(QtGui.QGraphicsPathItem):
     def mousePressEvent(self, event):
         """Delete Edge if icon is clicked with CTRL pressed."""
         leftmouse = event.button() == QtCore.Qt.MouseButton.LeftButton
-        ctrl = event.modifiers() == QtCore.Qt.ControlModifier
-        if leftmouse and ctrl:
+        mod = event.modifiers() == DELETE_MODIFIER_KEY
+        if leftmouse and mod:
             self.knob1.removeEdge(self)
             self.knob2.removeEdge(self)
             del self
 
     def paint(self, painter, option, widget):
-        """CTRL will show the Edge in red, because we can delete it then."""
-        ctrl = (QtGui.QApplication.keyboardModifiers() ==
-                QtCore.Qt.ControlModifier)
-        if ctrl:
+        """ALT will show the Edge in red, because we can delete it then."""
+        mod = QtGui.QApplication.keyboardModifiers() == DELETE_MODIFIER_KEY
+        if mod:
             self.setPen(QtGui.QPen(self.removalColor, self.thickness))
         else:
             self.setPen(QtGui.QPen(self.lineColor, self.thickness))
