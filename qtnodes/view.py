@@ -3,6 +3,7 @@
 from PySide import QtGui
 from PySide import QtCore
 
+from .node import Node
 from .edge import Edge
 
 
@@ -33,12 +34,18 @@ class GridView(QtGui.QGraphicsView):
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
         self.setTransformationAnchor(QtGui.QGraphicsView.AnchorUnderMouse)
 
+    def nodes(self):
+        """Return all Nodes in the scene."""
+        return [i for i in self.scene().items() if isinstance(i, Node)]
+
+    def edges(self):
+        """Return all Edges in the scene."""
+        return [i for i in self.scene().items() if isinstance(i, Edge)]
+
     def redrawEdges(self):
         """Trigger a repaint of all Edges in the scene."""
-        for item in self.scene().items():
-            if isinstance(item, Edge):
-                edge = item
-                edge.updatePath()
+        for edge in self.edges():
+            edge.updatePath()
 
     def keyPressEvent(self, event):
         """Trigger a redraw of Edges to update their color."""

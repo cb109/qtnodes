@@ -94,6 +94,27 @@ class NodeGraphWidget(QtGui.QWidget):
         loadFromAction = subMenu.addAction("Open File...")
         loadFromAction.triggered.connect(_loadSceneFrom)
 
+        def _mergeSceneFrom():
+            filePath, _ = QtGui.QFileDialog.getOpenFileName(
+                self,
+                "Open Scene JSON File",
+                os.path.join(QtCore.QDir.currentPath(), "scene.json"),
+                "JSON File (*.json)"
+            )
+            if filePath:
+                sceneData = serializer.mergeSceneFromFile(filePath)
+                if sceneData:
+                    # Select only new nodes so they can be moved.
+                    oldNodes = set(self.view.nodes())
+                    serializer.reconstructScene(self, sceneData)
+                    allNodes = set(self.view.nodes())
+                    mergedNodes = allNodes - oldNodes
+                    for node in mergedNodes:
+                        node.setSelected(True)
+
+        mergeFromAction = subMenu.addAction("Merge File...")
+        mergeFromAction.triggered.connect(_mergeSceneFrom)
+
         subMenu.addSeparator()
 
         def _storeCurrentScene():
@@ -118,7 +139,7 @@ class NodeGraphWidget(QtGui.QWidget):
 
         subMenu.addSeparator()
 
-        clearSceneAction = subMenu.addAction("Clear Scene")
+        clearSceneAction = subMenu.addAction("Clear")
         clearSceneAction.triggered.connect(self.clearScene)
 
         subMenu.addSeparator()
@@ -127,7 +148,7 @@ class NodeGraphWidget(QtGui.QWidget):
             autoLayout(self.scene)
             self.view.redrawEdges()
 
-        layoutSceneAction = subMenu.addAction("Auto Layout Scene")
+        layoutSceneAction = subMenu.addAction("Auto Layout")
         layoutSceneAction.triggered.connect(_layoutScene)
 
     def addNodesMenuActions(self, menu):

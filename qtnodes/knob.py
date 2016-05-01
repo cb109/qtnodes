@@ -40,8 +40,6 @@ class Knob(QtGui.QGraphicsItem):
         self.edges = []
 
         self.setAcceptHoverEvents(True)
-        self.setAcceptTouchEvents(True)
-        self.setAcceptDrops(True)
 
     def node(self):
         """This Knob's parent item is the Node it is attached to."""

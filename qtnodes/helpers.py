@@ -1,7 +1,25 @@
 """Various helper functions."""
 
+import json
+
 from PySide import QtGui
 from PySide import QtCore
+
+
+def readFileContent(filePath):
+    """Return the content of the file."""
+    with open(filePath) as f:
+        return f.read()
+
+
+def toJson(serialized):
+    """Return JSON string from given native Python datatypes."""
+    return json.dumps(serialized, encoding="utf-8", indent=4)
+
+
+def fromJson(jsonString):
+    """Return native Python datatypes from JSON string."""
+    return json.loads(jsonString, encoding="utf-8")
 
 
 def getTextSize(text, painter=None):
