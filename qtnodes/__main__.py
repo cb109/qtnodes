@@ -87,6 +87,8 @@ def test():
     graph.registerNodeClass(Multiply)
     graph.registerNodeClass(Output)
     graph.registerNodeClass(BigNode)
+    graph.registerNodeClass(File)
+    graph.registerNodeClass(Directory)
 
     # d1 = Directory(scene=graph.scene, text="root")
     # d2 = Directory(scene=graph.scene, text="opt")

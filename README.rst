@@ -5,9 +5,25 @@ Node-graph visualization and editing with PySide.
 
 Very WIP right now, the goal is to have a bunch of premade components that make it easy to implement a node graph to store and modify arbitrary data.
 
+Usage
+-----
+
+To start a small demo:
+
+    $ python -m qtnodes
+
+- **Select a node**: Leftclick its header.
+- **Select multiple nodes**: Leftclick and drag a rectangle about the nodes, release to select.
+- **Create a node**: Rightclick and choose a node from the context menu.
+- **Move a node**: Leftclick and drag its header.
+- **Delete a node**: Select it then press ``DELETE``.
+- **Create a connection**: Hover over a knob, then leftclick and drag to another knob. You can only connect inputs to outputs and vice versa.
+- **Remove a connection**: Hold ``CTRL``, the connections turn red, click one to remove it.
+
+Credits
+-------
 
 This started as a port of the original Qt/C++ tool ``qnodeseditor`` by Stanislaw Adaszewski, see:
-
 http://algoholic.eu/qnodeseditor-qt-nodesports-based-data-processing-flow-editor/
 
 Additional sources and inspirations:
