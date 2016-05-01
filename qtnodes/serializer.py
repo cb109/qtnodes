@@ -1,6 +1,5 @@
 """Serialization and deserialization of the graph."""
 
-import os
 import json
 
 from .node import Node
@@ -14,11 +13,11 @@ def serializeEdge(edge):
     to be able to correctly associate it once reconstructed.
     """
     return {
-        "knob1_nodeId": edge.knob1.node().uuid,
-        "knob1_labelText": edge.knob1.labelText,
+        "source_nodeId": edge.source.node().uuid,
+        "source_labelText": edge.source.labelText,
 
-        "knob2_nodeId": edge.knob2.node().uuid,
-        "knob2_labelText": edge.knob2.labelText,
+        "target_nodeId": edge.target.node().uuid,
+        "target_labelText": edge.target.labelText,
     }
 
 
@@ -75,13 +74,13 @@ def reconstructScene(graphWidget, sceneData):
 
     # Reconstruct their connections.
     for edgeData in sceneData["edges"]:
-        node1 = graphWidget.getNodeById(edgeData["knob1_nodeId"])
-        knob1 = node1.knob(edgeData["knob1_labelText"])
+        sourceNode = graphWidget.getNodeById(edgeData["source_nodeId"])
+        sourceKnob = sourceNode.knob(edgeData["source_labelText"])
 
-        node2 = graphWidget.getNodeById(edgeData["knob2_nodeId"])
-        knob2 = node2.knob(edgeData["knob2_labelText"])
+        targetNode = graphWidget.getNodeById(edgeData["target_nodeId"])
+        targetKnob = targetNode.knob(edgeData["target_labelText"])
 
-        knob1.connectTo(knob2)
+        sourceKnob.connectTo(targetKnob)
 
 
 def toJson(serialized):

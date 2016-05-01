@@ -17,11 +17,11 @@ class Edge(QtGui.QGraphicsPathItem):
         self.removalColor = QtCore.Qt.red
         self.thickness = 1
 
-        self.knob1 = None
-        self.knob2 = None
+        self.source = None
+        self.target = None
 
-        self.pos1 = QtCore.QPointF(0, 0)
-        self.pos2 = QtCore.QPointF(0, 0)
+        self.sourcePos = QtCore.QPointF(0, 0)
+        self.targetPos = QtCore.QPointF(0, 0)
 
         self.curv1 = 0.6
         self.curv3 = 0.4
@@ -33,9 +33,9 @@ class Edge(QtGui.QGraphicsPathItem):
 
     def mousePressEvent(self, event):
         """Delete Edge if icon is clicked with CTRL pressed."""
-        leftmouse = event.button() == QtCore.Qt.MouseButton.LeftButton
+        leftMouse = event.button() == QtCore.Qt.MouseButton.LeftButton
         mod = event.modifiers() == DELETE_MODIFIER_KEY
-        if leftmouse and mod:
+        if leftMouse and mod:
             self.destroy()
 
     def paint(self, painter, option, widget):
@@ -51,32 +51,32 @@ class Edge(QtGui.QGraphicsPathItem):
         super(Edge, self).paint(painter, option, widget)
 
     def updatePath(self):
-        if self.knob1:
-            self.pos1 = self.knob1.mapToScene(
-                self.knob1.boundingRect().center())
+        if self.source:
+            self.sourcePos = self.source.mapToScene(
+                self.source.boundingRect().center())
 
-        if self.knob2:
-            self.pos2 = self.knob2.mapToScene(
-                self.knob2.boundingRect().center())
+        if self.target:
+            self.targetPos = self.target.mapToScene(
+                self.target.boundingRect().center())
 
         path = QtGui.QPainterPath()
-        path.moveTo(self.pos1)
+        path.moveTo(self.sourcePos)
 
-        dx = self.pos2.x() - self.pos1.x()
-        dy = self.pos2.y() - self.pos1.y()
+        dx = self.targetPos.x() - self.sourcePos.x()
+        dy = self.targetPos.y() - self.sourcePos.y()
 
-        ctrl1 = QtCore.QPointF(self.pos1.x() + dx * self.curv1,
-                               self.pos1.y() + dy * self.curv2)
-        ctrl2 = QtCore.QPointF(self.pos1.x() + dx * self.curv3,
-                               self.pos1.y() + dy * self.curv4)
-        path.cubicTo(ctrl1, ctrl2, self.pos2)
+        ctrl1 = QtCore.QPointF(self.sourcePos.x() + dx * self.curv1,
+                               self.sourcePos.y() + dy * self.curv2)
+        ctrl2 = QtCore.QPointF(self.sourcePos.x() + dx * self.curv3,
+                               self.sourcePos.y() + dy * self.curv4)
+        path.cubicTo(ctrl1, ctrl2, self.targetPos)
         self.setPath(path)
 
     def destroy(self):
         """Remove this Edge and its reference in other objects."""
         print("destroy edge:", self)
-        if self.knob1:
-            self.knob1.removeEdge(self)
-        if self.knob2:
-            self.knob2.removeEdge(self)
+        if self.source:
+            self.source.removeEdge(self)
+        if self.target:
+            self.target.removeEdge(self)
         del self

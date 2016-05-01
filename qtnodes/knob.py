@@ -76,8 +76,8 @@ class Knob(QtGui.QGraphicsItem):
             print("create edge")
 
             self.newEdge = Edge()
-            self.newEdge.knob1 = self
-            self.newEdge.pos2 = event.scenePos()
+            self.newEdge.source = self
+            self.newEdge.targetPos = event.scenePos()
             self.newEdge.updatePath()
 
             # Make sure this is removed if the user cancels.
@@ -88,7 +88,7 @@ class Knob(QtGui.QGraphicsItem):
         """Update Edge position when currently creating one."""
         if self.newEdge:
             print("update edge")
-            self.newEdge.pos2 = event.scenePos()
+            self.newEdge.targetPos = event.scenePos()
             self.newEdge.updatePath()
 
     def mouseReleaseEvent(self, event):
@@ -98,9 +98,10 @@ class Knob(QtGui.QGraphicsItem):
             node = self.parentItem()
             scene = node.scene()
             target = scene.itemAt(event.scenePos())
+
             try:
                 if self.newEdge and target:
-                    if self.newEdge.knob1 is target:
+                    if self.newEdge.source is target:
                         raise KnobConnectionError(
                             "Can't connect a Knob to itself.")
 
@@ -111,7 +112,7 @@ class Knob(QtGui.QGraphicsItem):
 
                         newConn = set([self, target])
                         for edge in self.edges:
-                            existingConn = set([edge.knob1, edge.knob2])
+                            existingConn = set([edge.source, edge.target])
                             diff = existingConn.difference(newConn)
                             if not diff:
                                 raise KnobConnectionError(
@@ -120,7 +121,7 @@ class Knob(QtGui.QGraphicsItem):
 
                         print("finalize edge")
                         target.addEdge(self.newEdge)
-                        self.newEdge.knob2 = target
+                        self.newEdge.target = target
                         self.newEdge.updatePath()
                         self.newEdge = None
                         return
@@ -168,8 +169,8 @@ class Knob(QtGui.QGraphicsItem):
             return
 
         edge = Edge()
-        edge.knob1 = self
-        edge.knob2 = knob
+        edge.source = self
+        edge.target = knob
 
         self.addEdge(edge)
         knob.addEdge(edge)
