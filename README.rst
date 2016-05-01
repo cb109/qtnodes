@@ -10,7 +10,7 @@ The UI part is coming along nicely, but no actual data handling is attached to i
 
 Although this graph makes no sense, it shows the current look and feel:
 
-![](graph_example.png)
+.. image:: graph_example.png
 
 ## Usage
 
