@@ -45,6 +45,39 @@ class Knob(QtGui.QGraphicsItem):
         """This Knob's parent item is the Node it is attached to."""
         return self.parentItem()
 
+    def connectTo(self, knob):
+        """Convenience method to connect this to another Knob."""
+        if knob is self:
+            return
+
+        edge = Edge()
+        edge.source = self
+        edge.target = knob
+
+        self.addEdge(edge)
+        knob.addEdge(edge)
+
+        edge.updatePath()
+
+    def addEdge(self, edge):
+        self.edges.append(edge)
+        scene = self.scene()
+        if edge not in scene.items():
+            scene.addItem(edge)
+
+    def removeEdge(self, edge):
+        self.edges.remove(edge)
+        scene = self.scene()
+        if edge in scene.items():
+            scene.removeItem(edge)
+
+    def boundingRect(self):
+        rect = QtCore.QRect(self.x,
+                            self.y,
+                            self.w,
+                            self.h)
+        return rect
+
     def highlight(self, toggle):
         """Toggle highlight color."""
         if toggle:
@@ -52,6 +85,28 @@ class Knob(QtGui.QGraphicsItem):
             self.fillColor = self.highlightColor
         else:
             self.fillColor = self._oldFillColor
+
+    def paint(self, painter, option, widget):
+        bbox = self.boundingRect()
+
+        # Draw a filled rectangle.
+        painter.setPen(QtGui.QPen(QtCore.Qt.NoPen))
+        painter.setBrush(QtGui.QBrush(self.fillColor))
+        painter.drawRect(bbox)
+
+        # Draw a text label next to it. Position depends on the flow.
+        textSize = getTextSize(self.labelText, painter=painter)
+        if self.flow == FLOW_LEFT_TO_RIGHT:
+            x = bbox.right() + self.margin
+        elif self.flow == FLOW_RIGHT_TO_LEFT:
+            x = bbox.left() - self.margin - textSize.width()
+        else:
+            raise UnknownFlowError(
+                "Flow not recognized: {0}".format(self.flow))
+        y = bbox.bottom()
+
+        painter.setPen(QtGui.QPen(self.labelColor))
+        painter.drawText(x, y, self.labelText)
 
     def hoverEnterEvent(self, event):
         """Change Knob rectange color.
@@ -91,7 +146,12 @@ class Knob(QtGui.QGraphicsItem):
             self.newEdge.updatePath()
 
     def mouseReleaseEvent(self, event):
-        """Update Edge position when currently creating one."""
+        """Update Edge position when currently creating one.
+
+        These currently implements some constraints regarding the Knob
+        connection logic, for which we should probably have a more
+        flexible approach.
+        """
         if event.button() == QtCore.Qt.MouseButton.LeftButton:
 
             node = self.parentItem()
@@ -100,6 +160,7 @@ class Knob(QtGui.QGraphicsItem):
 
             try:
                 if self.newEdge and target:
+
                     if self.newEdge.source is target:
                         raise KnobConnectionError(
                             "Can't connect a Knob to itself.")
@@ -127,66 +188,12 @@ class Knob(QtGui.QGraphicsItem):
 
                 raise KnobConnectionError(
                     "Edge creation cancelled by user.")
+
             except KnobConnectionError as err:
                 print(err)
                 # Abort Edge creation and do some cleanup.
                 self.removeEdge(self.newEdge)
                 self.newEdge = None
-
-    def boundingRect(self):
-        rect = QtCore.QRect(self.x,
-                            self.y,
-                            self.w,
-                            self.h)
-        return rect
-
-    def paint(self, painter, option, widget):
-        bbox = self.boundingRect()
-
-        # Draw a filled rectangle.
-        painter.setPen(QtGui.QPen(QtCore.Qt.NoPen))
-        painter.setBrush(QtGui.QBrush(self.fillColor))
-        painter.drawRect(bbox)
-
-        # Draw a text label next to it. Position depends on the flow.
-        textSize = getTextSize(self.labelText, painter=painter)
-        if self.flow == FLOW_LEFT_TO_RIGHT:
-            x = bbox.right() + self.margin
-        elif self.flow == FLOW_RIGHT_TO_LEFT:
-            x = bbox.left() - self.margin - textSize.width()
-        else:
-            raise UnknownFlowError(
-                "Flow not recognized: {0}".format(self.flow))
-        y = bbox.bottom()
-
-        painter.setPen(QtGui.QPen(self.labelColor))
-        painter.drawText(x, y, self.labelText)
-
-    def connectTo(self, knob):
-        """Convenience method to connect this to another Knob."""
-        if knob is self:
-            return
-
-        edge = Edge()
-        edge.source = self
-        edge.target = knob
-
-        self.addEdge(edge)
-        knob.addEdge(edge)
-
-        edge.updatePath()
-
-    def addEdge(self, edge):
-        self.edges.append(edge)
-        scene = self.scene()
-        if edge not in scene.items():
-            scene.addItem(edge)
-
-    def removeEdge(self, edge):
-        self.edges.remove(edge)
-        scene = self.scene()
-        if edge in scene.items():
-            scene.removeItem(edge)
 
     def destroy(self):
         """Remove this Knob, its Edges and associations."""
