@@ -50,9 +50,11 @@ To start a small demo:
 - **Zoom the viewport**: Use the mouse wheel.
 - **Save scene to file:** Rightclick > Scene > Save As...
 - **Load scene from file:** Rightclick > Scene > Open File...
+- **Merge scene from file:** Rightclick > Scene > Merge File...
 - **Clear complete scene:** Rightclick > Scene > Clear Scene
 - **Hold scene state:** Rightclick > Scene > Hold
 - **Fetch scene state:** Rightclick > Scene > Fetch
+- **Autolayout scene:** Rightclick > Scene > Auto Layout
 
 ### Nodes
 
