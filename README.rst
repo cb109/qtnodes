@@ -25,7 +25,7 @@ Nodes
 
 - **Select a node**: Leftclick its header.
 - **Select multiple nodes**: Leftclick and drag a rectangle over the nodes, release to select.
-- **Create a node**: Rightclick and choose a node from the context menu.
+- **Create a node**: Rightclick > Nodes, choose a node type.
 - **Move a node**: Leftclick and drag its header.
 - **Delete a node**: Select it then press ``DELETE``.
 - **Create a connection**: Hover over a knob, then leftclick and drag to another knob. You can only connect inputs to outputs and vice versa.
