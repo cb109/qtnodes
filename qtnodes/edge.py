@@ -10,8 +10,8 @@ DELETE_MODIFIER_KEY = QtCore.Qt.AltModifier
 class Edge(QtGui.QGraphicsPathItem):
     """A connection between two Knobs."""
 
-    def __init__(self):
-        super(Edge, self).__init__()
+    def __init__(self, **kwargs):
+        super(Edge, self).__init__(**kwargs)
 
         self.lineColor = QtGui.QColor(10, 10, 10)
         self.removalColor = QtCore.Qt.red
@@ -38,19 +38,8 @@ class Edge(QtGui.QGraphicsPathItem):
         if leftMouse and mod:
             self.destroy()
 
-    def paint(self, painter, option, widget):
-        """ALT will show the Edge in red, because we can delete it then."""
-        mod = QtGui.QApplication.keyboardModifiers() == DELETE_MODIFIER_KEY
-        if mod:
-            self.setPen(QtGui.QPen(self.removalColor, self.thickness))
-        else:
-            self.setPen(QtGui.QPen(self.lineColor, self.thickness))
-
-        self.setBrush(QtCore.Qt.NoBrush)
-        self.setZValue(-1)
-        super(Edge, self).paint(painter, option, widget)
-
     def updatePath(self):
+        """Adjust current shape based on Knobs and curvature settings."""
         if self.source:
             self.sourcePos = self.source.mapToScene(
                 self.source.boundingRect().center())
@@ -71,6 +60,18 @@ class Edge(QtGui.QGraphicsPathItem):
                                self.sourcePos.y() + dy * self.curv4)
         path.cubicTo(ctrl1, ctrl2, self.targetPos)
         self.setPath(path)
+
+    def paint(self, painter, option, widget):
+        """ALT will show the Edge in red, because we can delete it then."""
+        mod = QtGui.QApplication.keyboardModifiers() == DELETE_MODIFIER_KEY
+        if mod:
+            self.setPen(QtGui.QPen(self.removalColor, self.thickness))
+        else:
+            self.setPen(QtGui.QPen(self.lineColor, self.thickness))
+
+        self.setBrush(QtCore.Qt.NoBrush)
+        self.setZValue(-1)
+        super(Edge, self).paint(painter, option, widget)
 
     def destroy(self):
         """Remove this Edge and its reference in other objects."""

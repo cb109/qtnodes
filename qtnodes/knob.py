@@ -14,24 +14,23 @@ FLOW_RIGHT_TO_LEFT = "flow_right_to_left"
 class Knob(QtGui.QGraphicsItem):
     """A Knob is a socket of a Node and can be connected to other Knobs."""
 
-    def __init__(self, *args, **kwargs):
-        super(Knob, self).__init__()
-        self.x = kwargs.get("x", 0)
-        self.y = kwargs.get("y", 0)
-        self.w = kwargs.get("w", 10)
-        self.h = kwargs.get("h", 10)
-        self.margin = kwargs.get("margin", 5)
-        self.flow = kwargs.get("flow", FLOW_LEFT_TO_RIGHT)
+    def __init__(self, **kwargs):
+        super(Knob, self).__init__(**kwargs)
+        self.x = 0
+        self.y = 0
+        self.w = 10
+        self.h = 10
+        self.margin = 5
+        self.flow = FLOW_LEFT_TO_RIGHT
 
         # FIXME: This is basically the unique identifier now.
         #   We could create multiple Knobs with the same though,
         #   which would be a problem during deserialization.
-        self.labelText = kwargs.get("labelText", "value")
+        self.labelText = "value"
 
-        self.labelColor = kwargs.get("labelColor", QtGui.QColor(10, 10, 10))
-        self.fillColor = kwargs.get("fillColor", QtGui.QColor(130, 130, 130))
-        self.highlightColor = kwargs.get("highlightColor",
-                                         QtGui.QColor(255, 255, 0))
+        self.labelColor = QtGui.QColor(10, 10, 10)
+        self.fillColor = QtGui.QColor(130, 130, 130)
+        self.highlightColor = QtGui.QColor(255, 255, 0)
 
         # Temp store for Edge currently being created.
         self.newEdge = None

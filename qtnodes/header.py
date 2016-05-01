@@ -11,15 +11,13 @@ class Header(QtGui.QGraphicsItem):
 
     Its width resizes automatically to match the Node's width.
     """
-    def __init__(self, node, text, h=20,
-                 fillColor=QtGui.QColor(90, 90, 90),
-                 textColor=QtGui.QColor(240, 240, 240)):
-        super(Header, self).__init__()
+    def __init__(self, node, text, **kwargs):
+        super(Header, self).__init__(**kwargs)
         self.node = node
         self.text = text
-        self.h = h
-        self.fillColor = fillColor
-        self.textColor = textColor
+        self.h = 20
+        self.fillColor = QtGui.QColor(90, 90, 90)
+        self.textColor = QtGui.QColor(240, 240, 240)
 
     def boundingRect(self):
         nodebox = self.node.boundingRect()

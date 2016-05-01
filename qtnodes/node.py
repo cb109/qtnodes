@@ -14,8 +14,8 @@ class Node(QtGui.QGraphicsItem):
 
     It can be created, removed and modified by the user in the UI.
     """
-    def __init__(self, scene=None):
-        super(Node, self).__init__(scene=scene)
+    def __init__(self, **kwargs):
+        super(Node, self).__init__(**kwargs)
 
         # This unique id is useful for serialization/reconstruction.
         self.uuid = str(uuid.uuid4())
