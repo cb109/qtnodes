@@ -49,8 +49,7 @@ class Knob(QtGui.QGraphicsItem):
         self.labelText = kwargs.get("labelText", "value")
         self.labelColor = kwargs.get("labelColor", QtGui.QColor(10, 10, 10))
         self.fillColor = kwargs.get("fillColor", QtGui.QColor(130, 130, 130))
-        self.highlightColor = kwargs.get("highlightColor",
-                                         QtGui.QColor(255, 255, 0))
+        self.highlightColor = kwargs.get("highlightColor", QtCore.Qt.yellow)
 
         self.newEdge = None
         self.edges = []
@@ -99,8 +98,6 @@ class Knob(QtGui.QGraphicsItem):
             # Make sure this is removed if the user cancels.
             self.addEdge(self.newEdge)
             return
-
-        super(Knob, self).mouseMoveEvent(event)
 
     def mouseMoveEvent(self, event):
         """Update Edge position when currently creating one."""
@@ -185,7 +182,9 @@ class Knob(QtGui.QGraphicsItem):
 
     def removeEdge(self, edge):
         self.edges.remove(edge)
-        self.scene().removeItem(edge)
+        scene = self.scene()
+        if edge in scene.items():
+            scene.removeItem(edge)
 
     def connectTo(self, knob):
         """Convenience method to connect this to another Knob."""
@@ -225,9 +224,7 @@ class Edge(QtGui.QGraphicsPathItem):
     def __init__(self):
         super(Edge, self).__init__()
 
-        self.lineColor = QtCore.Qt.black
-        self.hoverColor = QtCore.Qt.yellow
-
+        self.lineColor = QtGui.QColor(10, 10, 10)
         self.thickness = 1 * CURRENT_ZOOM
 
         self.knob1 = None
@@ -242,11 +239,24 @@ class Edge(QtGui.QGraphicsPathItem):
         self.curv2 = 0.2
         self.curv4 = 0.8
 
-    def updatePath(self):
+        self.setAcceptHoverEvents(True)
+
+    def mousePressEvent(self, event):
+        """Delete Edge if icon is clicked with CTRL pressed."""
+        leftmouse = event.button() == QtCore.Qt.MouseButton.LeftButton
+        ctrl = event.modifiers() == QtCore.Qt.ControlModifier
+        if leftmouse and ctrl:
+            self.knob1.removeEdge(self)
+            self.knob2.removeEdge(self)
+            del self
+
+    def paint(self, painter, option, widget):
         self.setPen(QtGui.QPen(self.lineColor, self.thickness))
         self.setBrush(QtCore.Qt.NoBrush)
         self.setZValue(-1)
+        super(Edge, self).paint(painter, option, widget)
 
+    def updatePath(self):
         if self.knob1:
             self.pos1 = self.knob1.mapToScene(
                 self.knob1.boundingRect().center())
