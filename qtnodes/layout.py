@@ -65,6 +65,9 @@ def autoLayout(scene):
     """Do a basic hierarchical tree layout of the scene."""
     print("auto layout")
     nodes = [i for i in scene.items() if isinstance(i, Node)]
+    if not nodes:
+        return
+
     trees = makeTree(nodes)
 
     # Arrange hierarchical levels on x-axis.
