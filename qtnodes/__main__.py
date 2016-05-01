@@ -199,6 +199,8 @@ todos
 
 - bug: sometimes a node's background rectangle is not cleared when deleting nodes
 
+- enforce direction, or at least the concention to store source/target inside an Edge. there is currently no explicit way to tell who is the child of whom. the implicit information (input vs outputknob) is lost in serialization.
+- basic tree layout algorithm: must first enforce a directed graph, see above
 - edit nodes: possibly like in nuke, with an extra floating widget or a sidebar
 - attach data to nodes and let them modify it: callbacks? custom signals?
 - evaluate the graph, graph traversal, show some values in the ui?
