@@ -11,3 +11,7 @@ class UnknownFlowError(QtNodesError):
 
 class KnobConnectionError(QtNodesError):
     """Something went wrong while trying to connect two Knobs."""
+
+
+class EdgeInvalidError(QtNodesError):
+    """The Edge connects things in a way that is wrong."""

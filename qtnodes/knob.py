@@ -7,6 +7,8 @@ from .helpers import getTextSize
 from .exceptions import KnobConnectionError, UnknownFlowError
 from .edge import Edge
 
+
+# Currently only affects Knob label placement.
 FLOW_LEFT_TO_RIGHT = "flow_left_to_right"
 FLOW_RIGHT_TO_LEFT = "flow_right_to_left"
 
@@ -179,10 +181,11 @@ class Knob(QtGui.QGraphicsItem):
                                     "Connection already exists.")
                                 return
 
-                        print("finalize edge")
+                        print("finish edge")
                         target.addEdge(self.newEdge)
                         self.newEdge.target = target
                         self.newEdge.updatePath()
+                        self.finalizeEdge(self.newEdge)
                         self.newEdge = None
                         return
 
@@ -194,6 +197,14 @@ class Knob(QtGui.QGraphicsItem):
                 # Abort Edge creation and do some cleanup.
                 self.removeEdge(self.newEdge)
                 self.newEdge = None
+
+    def finalizeEdge(self, edge):
+        """This intentionally is a NoOp on the Knob baseclass.
+
+        It is meant for subclass Knobs to implement special behaviour
+        that needs to be considered when connecting two Knobs.
+        """
+        pass
 
     def destroy(self):
         """Remove this Knob, its Edges and associations."""
@@ -209,12 +220,44 @@ class Knob(QtGui.QGraphicsItem):
         del self
 
 
+def ensureEdgeDirection(edge):
+    """Make sure OutputKnob is .source and InputKnob is .target.
+
+        source --> target
+    OutputKnob --> InputKnob
+
+    This may seem the exact opposite way as expected, but makes sense
+    when seen as a hierarchy: A Node which output depends on some other
+    Node's input can be seen as a *child* of the other Node. We need
+    that information to build a directed graph.
+
+    We assume here that there always is an InputKnob and an OutputKnob
+    in the given Edge, just their order may be wrong. Since the
+    serialization relies on that order, it is enforced here.
+    """
+    print("ensure edge direction")
+    if isinstance(edge.target, OutputKnob):
+        assert isinstance(edge.source, InputKnob)
+        actualTarget = edge.source
+        edge.source = edge.target
+        edge.target = actualTarget
+    else:
+        assert isinstance(edge.source, OutputKnob)
+        assert isinstance(edge.target, InputKnob)
+
+    print("src:", edge.source.__class__.__name__,
+          "trg:", edge.target.__class__.__name__)
+
+
 class InputKnob(Knob):
 
     def __init__(self, *args, **kwargs):
         super(InputKnob, self).__init__(*args, **kwargs)
         self.labelText = kwargs.get("labelText", "input")
         self.fillColor = kwargs.get("fillColor", QtGui.QColor(130, 230, 130))
+
+    def finalizeEdge(self, edge):
+        ensureEdgeDirection(edge)
 
 
 class OutputKnob(Knob):
@@ -224,3 +267,6 @@ class OutputKnob(Knob):
         self.labelText = kwargs.get("labelText", "output")
         self.fillColor = kwargs.get("fillColor", QtGui.QColor(230, 130, 130))
         self.flow = kwargs.get("flow", FLOW_RIGHT_TO_LEFT)
+
+    def finalizeEdge(self, edge):
+        ensureEdgeDirection(edge)
