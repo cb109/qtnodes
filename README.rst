@@ -1,4 +1,5 @@
-# qtnodes
+qtnodes
+~~~~~~~
 
 Node graph visualization and editing with PySide.
 
@@ -6,19 +7,22 @@ Very **WIP** right now, the goal is to have a bunch of premade components that m
 
 The UI part is coming along nicely, but no actual data handling is attached to it yet.
 
-## UI Example
+UI Example
+----------
 
 Although this graph makes no sense, it shows the current look and feel:
 
-.. image:: graph_example.png
+.. image:: http://i.imgur.com/oBj0FBJ.png
 
-## Usage
+Usage
+-----
 
 To start a small demo:
 
     $ python -m qtnodes
 
-### Scene
+Scene
+=====
 
 - **Pan the viewport**: Hold the middle mousebutton and drag.
 - **Zoom the viewport**: Use the mouse wheel.
@@ -28,7 +32,8 @@ To start a small demo:
 - **Hold scene state:** Rightclick > Scene > Hold
 - **Fetch scene state:** Rightclick > Scene > Fetch
 
-### Nodes
+Nodes
+=====
 
 - **Select a node**: Leftclick its header.
 - **Select multiple nodes**: Leftclick and drag a rectangle over the nodes, release to select.
@@ -38,7 +43,8 @@ To start a small demo:
 - **Create a connection**: Hover over a knob, then leftclick and drag to another knob. You can only connect inputs to outputs and vice versa.
 - **Remove a connection**: Hold `ALT`, the connections turn red, click one to remove it.
 
-## Credits
+Credits
+-------
 
 This started as a port of the original Qt/C++ tool `qnodeseditor` by Stanislaw Adaszewski, see:
 
