@@ -30,7 +30,7 @@ class GridView(QtGui.QGraphicsView):
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
-        # self.setTransformationAnchor(QtGui.QGraphicsView.AnchorUnderMouse)
+        self.setTransformationAnchor(QtGui.QGraphicsView.AnchorUnderMouse)
 
     def _redrawEdges(self):
         """Trigger a repaint of all Edges in the scene."""

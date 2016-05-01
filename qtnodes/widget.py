@@ -25,7 +25,7 @@ class NodeGraphWidget(QtGui.QWidget):
         layout.addWidget(self.view)
         self.setLayout(layout)
 
-        self.nodeClasses = {}
+        self.nodeClasses = []
 
     def keyPressEvent(self, event):
         """Delete selected Nodes."""
@@ -41,7 +41,7 @@ class NodeGraphWidget(QtGui.QWidget):
         menu = QtGui.QMenu(self)
         action = menu.addAction("Create Nodes")
         menu.addSeparator()
-        for cls in self.nodeClasses.values():
+        for cls in self.nodeClasses:
             className = cls.__name__
             action = menu.addAction(className)
             # http://stackoverflow.com/questions/20390323/pyqt-dynamic-generate-qmenu-action-and-connect  # noqa
@@ -68,10 +68,12 @@ class NodeGraphWidget(QtGui.QWidget):
             self.view.centerOn(node.pos())
 
     def registerNodeClass(self, cls):
-        self.nodeClasses[cls.__name__] = cls
+        if cls not in self.nodeClasses:
+            self.nodeClasses.append(cls)
 
     def unregisterNodeClass(self, cls):
-        self.nodeClasses.pop(cls.__name__, None)
+        if cls in self.nodeClasses:
+            self.nodeClasses.remove(cls)
 
     def addNode(self, node):
         """Add a Node to the current scene.

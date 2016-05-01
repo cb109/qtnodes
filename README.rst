@@ -12,6 +12,8 @@ To start a small demo:
 
     $ python -m qtnodes
 
+- **Pan the viewport**: Hold the middle mousebutton and drag.
+- **Zoom the viewport**: Use the mouse wheel.
 - **Select a node**: Leftclick its header.
 - **Select multiple nodes**: Leftclick and drag a rectangle about the nodes, release to select.
 - **Create a node**: Rightclick and choose a node from the context menu.
