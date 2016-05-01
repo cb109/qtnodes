@@ -14,16 +14,48 @@ class Integer(Node):
         super(Integer, self).__init__(*args, **kwargs)
         self.addHeader(Header(node=self, text="Int"))
         self.addKnob(OutputKnob(labelText="value"))
+        # self.header.fillColor = QtGui.QColor(36, 128, 18)
+
+
+class Float(Node):
+
+    def __init__(self, *args, **kwargs):
+        super(Float, self).__init__(*args, **kwargs)
+        self.addHeader(Header(node=self, text="Float"))
+        self.addKnob(OutputKnob(labelText="value"))
+        # self.header.fillColor = QtGui.QColor(24, 129, 163)
 
 
 class Multiply(Node):
 
     def __init__(self, *args, **kwargs):
         super(Multiply, self).__init__(*args, **kwargs)
-        self.addHeader(Header(node=self, text="Multiply"))
+        self.addHeader(Header(node=self, text=self.__class__.__name__))
         self.addKnob(InputKnob(labelText="x"))
         self.addKnob(InputKnob(labelText="y"))
         self.addKnob(OutputKnob(labelText="value"))
+        # self.header.fillColor = QtGui.QColor(163, 26, 159)
+
+
+class Divide(Multiply):
+
+    def __init__(self, *args, **kwargs):
+        super(Divide, self).__init__(*args, **kwargs)
+        # self.header.fillColor = QtGui.QColor(26, 163, 159)
+
+
+class Add(Multiply):
+
+    def __init__(self, *args, **kwargs):
+        super(Add, self).__init__(*args, **kwargs)
+        # self.header.fillColor = QtGui.QColor(105, 128, 23)
+
+
+class Subtract(Multiply):
+
+    def __init__(self, *args, **kwargs):
+        super(Subtract, self).__init__(*args, **kwargs)
+        # self.header.fillColor = QtGui.QColor(23, 51, 128)
 
 
 class Output(Node):
@@ -32,6 +64,8 @@ class Output(Node):
         super(Output, self).__init__(*args, **kwargs)
         self.addHeader(Header(node=self, text="Output"))
         self.addKnob(InputKnob(labelText="output"))
+        # self.header.fillColor = self.fillColor
+        # self.header.textColor = QtGui.QColor(10, 10, 10)
 
 
 class BigNode(Node):
@@ -84,7 +118,11 @@ def test():
     graph.show()
 
     graph.registerNodeClass(Integer)
+    graph.registerNodeClass(Float)
     graph.registerNodeClass(Multiply)
+    graph.registerNodeClass(Divide)
+    graph.registerNodeClass(Add)
+    graph.registerNodeClass(Subtract)
     graph.registerNodeClass(Output)
     graph.registerNodeClass(BigNode)
     graph.registerNodeClass(File)
@@ -115,39 +153,39 @@ def test():
     # d5.knob("children").connectTo(d7.knob("parent"))
     # d7.knob("children").connectTo(d8.knob("parent"))
 
-    nodeInt1 = Integer(scene=graph.scene)
-    nodeInt2 = Integer(scene=graph.scene)
-    nodeMult = Multiply(scene=graph.scene)
-    nodeOut = Output(scene=graph.scene)
-    nodeBig = BigNode(scene=graph.scene)
+    # nodeInt1 = Integer(scene=graph.scene)
+    # nodeInt2 = Integer(scene=graph.scene)
+    # nodeMult = Multiply(scene=graph.scene)
+    # nodeOut = Output(scene=graph.scene)
+    # nodeBig = BigNode(scene=graph.scene)
 
-    nodeInt2.moveBy(100, 250)
-    nodeMult.moveBy(200, 100)
-    nodeBig.moveBy(300, 50)
-    nodeOut.moveBy(400, 150)
+    # nodeInt2.moveBy(100, 250)
+    # nodeMult.moveBy(200, 100)
+    # nodeBig.moveBy(300, 50)
+    # nodeOut.moveBy(400, 150)
 
-    nodeInt1.knob("value").connectTo(nodeMult.knob("x"))
-    nodeInt2.knob("value").connectTo(nodeMult.knob("y"))
+    # nodeInt1.knob("value").connectTo(nodeMult.knob("x"))
+    # nodeInt2.knob("value").connectTo(nodeMult.knob("y"))
 
-    nodeMult.knob("value").connectTo(nodeBig.knob("i1"))
-    nodeMult.knob("value").connectTo(nodeBig.knob("i2"))
-    nodeMult.knob("value").connectTo(nodeBig.knob("i3"))
-    nodeMult.knob("value").connectTo(nodeBig.knob("i4"))
-    nodeMult.knob("value").connectTo(nodeBig.knob("i5"))
-    nodeMult.knob("value").connectTo(nodeBig.knob("i6"))
-    nodeMult.knob("value").connectTo(nodeBig.knob("i7"))
-    nodeMult.knob("value").connectTo(nodeBig.knob("i8"))
-    nodeMult.knob("value").connectTo(nodeBig.knob("i9"))
+    # nodeMult.knob("value").connectTo(nodeBig.knob("i1"))
+    # nodeMult.knob("value").connectTo(nodeBig.knob("i2"))
+    # nodeMult.knob("value").connectTo(nodeBig.knob("i3"))
+    # nodeMult.knob("value").connectTo(nodeBig.knob("i4"))
+    # nodeMult.knob("value").connectTo(nodeBig.knob("i5"))
+    # nodeMult.knob("value").connectTo(nodeBig.knob("i6"))
+    # nodeMult.knob("value").connectTo(nodeBig.knob("i7"))
+    # nodeMult.knob("value").connectTo(nodeBig.knob("i8"))
+    # nodeMult.knob("value").connectTo(nodeBig.knob("i9"))
 
-    nodeBig.knob("o1").connectTo(nodeOut.knob("output"))
-    nodeBig.knob("o2").connectTo(nodeOut.knob("output"))
-    nodeBig.knob("o3").connectTo(nodeOut.knob("output"))
-    nodeBig.knob("o4").connectTo(nodeOut.knob("output"))
-    nodeBig.knob("o5").connectTo(nodeOut.knob("output"))
-    nodeBig.knob("o6").connectTo(nodeOut.knob("output"))
-    nodeBig.knob("o7").connectTo(nodeOut.knob("output"))
-    nodeBig.knob("o8").connectTo(nodeOut.knob("output"))
-    nodeBig.knob("o9").connectTo(nodeOut.knob("output"))
+    # nodeBig.knob("o1").connectTo(nodeOut.knob("output"))
+    # nodeBig.knob("o2").connectTo(nodeOut.knob("output"))
+    # nodeBig.knob("o3").connectTo(nodeOut.knob("output"))
+    # nodeBig.knob("o4").connectTo(nodeOut.knob("output"))
+    # nodeBig.knob("o5").connectTo(nodeOut.knob("output"))
+    # nodeBig.knob("o6").connectTo(nodeOut.knob("output"))
+    # nodeBig.knob("o7").connectTo(nodeOut.knob("output"))
+    # nodeBig.knob("o8").connectTo(nodeOut.knob("output"))
+    # nodeBig.knob("o9").connectTo(nodeOut.knob("output"))
 
     app.exec_()
 
