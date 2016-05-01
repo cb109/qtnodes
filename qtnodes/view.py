@@ -33,22 +33,23 @@ class GridView(QtGui.QGraphicsView):
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
         self.setTransformationAnchor(QtGui.QGraphicsView.AnchorUnderMouse)
 
-    def _redrawEdges(self):
+    def redrawEdges(self):
         """Trigger a repaint of all Edges in the scene."""
         for item in self.scene().items():
             if isinstance(item, Edge):
-                item.update()
+                edge = item
+                edge.updatePath()
 
     def keyPressEvent(self, event):
         """Trigger a redraw of Edges to update their color."""
         if event.key() == ALTERNATE_MODE_KEY:
-            self._redrawEdges()
+            self.redrawEdges()
         super(GridView, self).keyPressEvent(event)
 
     def keyReleaseEvent(self, event):
         """Trigger a redraw of Edges to update their color."""
         if event.key() == ALTERNATE_MODE_KEY:
-            self._redrawEdges()
+            self.redrawEdges()
         super(GridView, self).keyReleaseEvent(event)
 
     def mousePressEvent(self, event):

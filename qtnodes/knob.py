@@ -221,10 +221,14 @@ class Knob(QtGui.QGraphicsItem):
 
 
 def ensureEdgeDirection(edge):
-    """Make sure OutputKnob is .source and InputKnob is .target.
+    """Make sure the Edge direction is as described below.
 
-        source --> target
+       .source --> .target
     OutputKnob --> InputKnob
+
+    Which basically translates to:
+
+    'Node with OutputKnob is the child of the Node with the InputKnob.''
 
     This may seem the exact opposite way as expected, but makes sense
     when seen as a hierarchy: A Node which output depends on some other

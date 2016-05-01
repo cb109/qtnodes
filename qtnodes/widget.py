@@ -11,6 +11,7 @@ from PySide import QtCore
 
 from .node import Node
 from .view import GridView
+from .layout import autoLayout
 from . import serializer
 
 
@@ -119,6 +120,15 @@ class NodeGraphWidget(QtGui.QWidget):
 
         clearSceneAction = subMenu.addAction("Clear Scene")
         clearSceneAction.triggered.connect(self.clearScene)
+
+        subMenu.addSeparator()
+
+        def _layoutScene():
+            autoLayout(self.scene)
+            self.view.redrawEdges()
+
+        layoutSceneAction = subMenu.addAction("Auto Layout Scene")
+        layoutSceneAction.triggered.connect(_layoutScene)
 
     def addNodesMenuActions(self, menu):
         subMenu = menu.addMenu("Nodes")
