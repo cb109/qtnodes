@@ -1,5 +1,6 @@
 """Serialization and deserialization of the graph."""
 
+import os
 import json
 
 from .node import Node
@@ -85,9 +86,22 @@ def reconstructScene(graphWidget, sceneData):
 
 def toJson(serialized):
     """Return JSON string from given native Python datatypes."""
-    return json.dumps(serialized, encoding="utf-8")
+    return json.dumps(serialized, encoding="utf-8", indent=4)
 
 
 def fromJson(jsonString):
     """Return native Python datatypes from JSON string."""
     return json.loads(jsonString, encoding="utf-8")
+
+
+def saveSceneToFile(sceneData, jsonFile):
+    """Store the serialized scene as .json file."""
+    with open(jsonFile, "w") as f:
+        f.write(toJson(sceneData) + "\n")
+
+
+def loadSceneFromFile(jsonFile):
+    """Read the serialized scene data from a .json file."""
+    with open(jsonFile) as f:
+        sceneData = fromJson(f.read())
+    return sceneData

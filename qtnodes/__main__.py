@@ -149,15 +149,6 @@ def test():
     nodeBig.knob("o8").connectTo(nodeOut.knob("output"))
     nodeBig.knob("o9").connectTo(nodeOut.knob("output"))
 
-    from .serializer import serializeScene, reconstructScene
-
-    sceneData = serializeScene(graph.scene)
-    from pprint import pprint
-    pprint(sceneData)
-
-    graph.clearScreen()
-    reconstructScene(graph, sceneData)
-
     app.exec_()
 
 

@@ -4,12 +4,14 @@ Regarding the slightly weird signal connection syntax refer to:
 
     http://stackoverflow.com/questions/20390323/ pyqt-dynamic-generate-qmenu-action-and-connect  # noqa
 """
+import os
+
 from PySide import QtGui
 from PySide import QtCore
 
 from .node import Node
 from .view import GridView
-from .serializer import serializeScene, reconstructScene
+from . import serializer
 
 
 class NodeGraphWidget(QtGui.QWidget):
@@ -33,9 +35,10 @@ class NodeGraphWidget(QtGui.QWidget):
         self.nodeClasses = []
 
         # A cache for storing a representation of the current scene.
+        # This is used for the Hold scene / Fetch scene feature.
         self.lastStoredSceneData = None
 
-    def clearScreen(self):
+    def clearScene(self):
         """Remove everything in the current scene.
 
         FIXME: The GC does all the work here, which is probably not the
@@ -57,29 +60,65 @@ class NodeGraphWidget(QtGui.QWidget):
         super(NodeGraphWidget, self).keyPressEvent(event)
 
     def addDefaultMenuActions(self, menu):
+        """Add scene specific actions like hold/fetch/save/load."""
         subMenu = menu.addMenu("Scene")
 
-        def storeCurrentScene():
-            self.lastStoredSceneData = serializeScene(self.scene)
+        def _saveSceneAs():
+            filePath, _ = QtGui.QFileDialog.getSaveFileName(
+                self,
+                "Save Scene to JSON",
+                os.path.join(QtCore.QDir.currentPath(), "scene.json"),
+                "JSON File (*.json)"
+            )
+            if filePath:
+                sceneData = serializer.serializeScene(self.scene)
+                serializer.saveSceneToFile(sceneData, filePath)
+
+        saveToAction = subMenu.addAction("Save As...")
+        saveToAction.triggered.connect(_saveSceneAs)
+
+        def _loadSceneFrom():
+            filePath, _ = QtGui.QFileDialog.getOpenFileName(
+                self,
+                "Open Scene JSON File",
+                os.path.join(QtCore.QDir.currentPath(), "scene.json"),
+                "JSON File (*.json)"
+            )
+            if filePath:
+                sceneData = serializer.loadSceneFromFile(filePath)
+                if sceneData:
+                    self.clearScene()
+                    serializer.reconstructScene(self, sceneData)
+
+        loadFromAction = subMenu.addAction("Open File...")
+        loadFromAction.triggered.connect(_loadSceneFrom)
+
+        subMenu.addSeparator()
+
+        clearSceneAction = subMenu.addAction("Clear Scene")
+        clearSceneAction.triggered.connect(self.clearScene)
+
+        subMenu.addSeparator()
+
+        def _storeCurrentScene():
+            self.lastStoredSceneData = serializer.serializeScene(self.scene)
             QtGui.QMessageBox.information(self, "Hold",
                                           "Scene state holded.")
 
         holdAction = subMenu.addAction("Hold")
-        holdAction.triggered.connect(storeCurrentScene)
+        holdAction.triggered.connect(_storeCurrentScene)
 
-        def loadLastStoredScene():
+        def _loadLastStoredScene():
             if not self.lastStoredSceneData:
                 print("scene data is empty, nothing to load")
                 return
-            self.clearScreen()
-            reconstructScene(self, self.lastStoredSceneData)
+            self.clearScene()
+            serializer.reconstructScene(self, self.lastStoredSceneData)
             QtGui.QMessageBox.information(self, "Fetch",
                                           "Scene state fetched.")
 
         fetchAction = subMenu.addAction("Fetch")
-        fetchAction.triggered.connect(loadLastStoredScene)
-
-        subMenu.addSeparator()
+        fetchAction.triggered.connect(_loadLastStoredScene)
 
     def addNodesMenuActions(self, menu):
         subMenu = menu.addMenu("Nodes")
