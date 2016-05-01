@@ -1,10 +1,12 @@
 qtnodes
 ~~~~~~~
 
-Simple node-graph visualization and editing with PySide.
+Node-graph visualization and editing with PySide.
+
+Very WIP right now, the goal is to have a bunch of premade components that make it easy to implement a node graph to store and modify arbitrary data.
 
 
-This is a port of the original Qt/C++ tool ``qnodeseditor`` by Stanislaw Adaszewski, see:
+This started as a port of the original Qt/C++ tool ``qnodeseditor`` by Stanislaw Adaszewski, see:
 
 http://algoholic.eu/qnodeseditor-qt-nodesports-based-data-processing-flow-editor/
 
