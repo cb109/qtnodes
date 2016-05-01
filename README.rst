@@ -14,6 +14,31 @@ Although this graph makes no sense, it shows the current look and feel:
 
 .. image:: http://i.imgur.com/oBj0FBJ.png
 
+Code Example
+------------
+.. code-block:: python
+    from PySide import QtGui
+
+    from qtnodes import (Header, Node, InputKnob,
+                         OutputKnob, NodeGraphWidget)
+
+
+    class Multiply(Node):
+
+        def __init__(self, *args, **kwargs):
+            super(Multiply, self).__init__(*args, **kwargs)
+            self.addHeader(Header(node=self, text=self.__class__.__name__))
+            self.addKnob(InputKnob(labelText="x"))
+            self.addKnob(InputKnob(labelText="y"))
+            self.addKnob(OutputKnob(labelText="value"))
+
+    app = QtGui.QApplication([])
+    graph = NodeGraphWidget()
+    graph.registerNodeClass(Multiply)
+    graph.addNode(Multiply())
+    graph.show()
+    app.exec_()
+
 Usage
 -----
 
