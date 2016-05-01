@@ -197,10 +197,9 @@ if __name__ == '__main__':
 """
 todos
 
-- create, remove, edit nodes
-- that should hopefully enable us to use RubberBandDrag together with
-  creating edges from a knob
-- attach data to nodes and let them modify it
-- save/load a graph to/from json
+- edit nodes: possibly like in nuke, with an extra floating widget or a sidebar
+- attach data to nodes and let them modify it: callbacks? custom signals?
+- evaluate the graph, graph traversal, show some values in the ui?
+- tests!
 
 """
