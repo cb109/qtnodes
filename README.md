@@ -16,10 +16,8 @@ Although this graph makes no sense, it shows the current look and feel:
 
 ```python
 from PySide import QtGui
-
 from qtnodes import (Header, Node, InputKnob,
                      OutputKnob, NodeGraphWidget)
-
 
 class Multiply(Node):
 
@@ -43,6 +41,8 @@ app.exec_()
 To start a small demo:
 
     $ python -m qtnodes
+
+You can load example **.json** files from `examples/`.
 
 ### Scene
 
