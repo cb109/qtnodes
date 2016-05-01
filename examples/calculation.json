@@ -1,0 +1,120 @@
+{
+    "nodes": [
+        {
+            "y": -196.0, 
+            "x": 12.0, 
+            "class": "Integer", 
+            "uuid": "6795f217-343e-40a0-be13-cce24a981365"
+        }, 
+        {
+            "y": -13.0, 
+            "x": 160.0, 
+            "class": "Float", 
+            "uuid": "25d026c9-d667-46c4-8d7d-9a0e16f090f7"
+        }, 
+        {
+            "y": -56.0, 
+            "x": 273.0, 
+            "class": "Multiply", 
+            "uuid": "acdf7cfa-b2d3-4750-8147-71f57d054416"
+        }, 
+        {
+            "y": 22.0, 
+            "x": 348.0, 
+            "class": "Divide", 
+            "uuid": "560a443d-def6-4a25-a661-737f1024b911"
+        }, 
+        {
+            "y": -188.0, 
+            "x": 111.0, 
+            "class": "Add", 
+            "uuid": "46889931-55c6-4929-ad59-f8d044805fb0"
+        }, 
+        {
+            "y": -103.0, 
+            "x": 182.0, 
+            "class": "Subtract", 
+            "uuid": "7ad90c86-0608-41e7-94c5-ed91c4ecfb4f"
+        }, 
+        {
+            "y": 82.0, 
+            "x": 445.0, 
+            "class": "Output", 
+            "uuid": "24ec24b9-6499-4b66-b042-46c571ad740e"
+        }, 
+        {
+            "y": -142.0, 
+            "x": 12.0, 
+            "class": "Integer", 
+            "uuid": "8cbea8db-2b20-44da-a8b7-9ba9acf53170"
+        }, 
+        {
+            "y": -84.0, 
+            "x": 90.0, 
+            "class": "Integer", 
+            "uuid": "274afe2a-73eb-4f29-8db0-b47d6e2bf0ee"
+        }, 
+        {
+            "y": 38.0, 
+            "x": 249.0, 
+            "class": "Float", 
+            "uuid": "24242bea-38db-407a-a8b9-9e6ace263eb4"
+        }
+    ], 
+    "edges": [
+        {
+            "source_nodeId": "6795f217-343e-40a0-be13-cce24a981365", 
+            "source_labelText": "value", 
+            "target_nodeId": "46889931-55c6-4929-ad59-f8d044805fb0", 
+            "target_labelText": "x"
+        }, 
+        {
+            "source_nodeId": "8cbea8db-2b20-44da-a8b7-9ba9acf53170", 
+            "source_labelText": "value", 
+            "target_nodeId": "46889931-55c6-4929-ad59-f8d044805fb0", 
+            "target_labelText": "y"
+        }, 
+        {
+            "source_nodeId": "46889931-55c6-4929-ad59-f8d044805fb0", 
+            "source_labelText": "value", 
+            "target_nodeId": "7ad90c86-0608-41e7-94c5-ed91c4ecfb4f", 
+            "target_labelText": "x"
+        }, 
+        {
+            "source_nodeId": "274afe2a-73eb-4f29-8db0-b47d6e2bf0ee", 
+            "source_labelText": "value", 
+            "target_nodeId": "7ad90c86-0608-41e7-94c5-ed91c4ecfb4f", 
+            "target_labelText": "y"
+        }, 
+        {
+            "source_nodeId": "7ad90c86-0608-41e7-94c5-ed91c4ecfb4f", 
+            "source_labelText": "value", 
+            "target_nodeId": "acdf7cfa-b2d3-4750-8147-71f57d054416", 
+            "target_labelText": "x"
+        }, 
+        {
+            "source_nodeId": "25d026c9-d667-46c4-8d7d-9a0e16f090f7", 
+            "source_labelText": "value", 
+            "target_nodeId": "acdf7cfa-b2d3-4750-8147-71f57d054416", 
+            "target_labelText": "y"
+        }, 
+        {
+            "source_nodeId": "acdf7cfa-b2d3-4750-8147-71f57d054416", 
+            "source_labelText": "value", 
+            "target_nodeId": "560a443d-def6-4a25-a661-737f1024b911", 
+            "target_labelText": "x"
+        }, 
+        {
+            "source_nodeId": "24242bea-38db-407a-a8b9-9e6ace263eb4", 
+            "source_labelText": "value", 
+            "target_nodeId": "560a443d-def6-4a25-a661-737f1024b911", 
+            "target_labelText": "y"
+        }, 
+        {
+            "source_nodeId": "560a443d-def6-4a25-a661-737f1024b911", 
+            "source_labelText": "value", 
+            "target_nodeId": "24ec24b9-6499-4b66-b042-46c571ad740e", 
+            "target_labelText": "output"
+        }
+    ]
+}
