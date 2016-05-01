@@ -28,7 +28,9 @@ class Knob(QtGui.QGraphicsItem):
         self.fillColor = kwargs.get("fillColor", QtGui.QColor(130, 130, 130))
         self.highlightColor = kwargs.get("highlightColor", QtCore.Qt.yellow)
 
+        # Temp store for Edge currently being created.
         self.newEdge = None
+
         self.edges = []
 
         self.setAcceptHoverEvents(True)
@@ -151,18 +153,6 @@ class Knob(QtGui.QGraphicsItem):
         painter.setPen(QtGui.QPen(self.labelColor))
         painter.drawText(x, y, self.labelText)
 
-    def addEdge(self, edge):
-        self.edges.append(edge)
-        scene = self.scene()
-        if edge not in scene.items():
-            scene.addItem(edge)
-
-    def removeEdge(self, edge):
-        self.edges.remove(edge)
-        scene = self.scene()
-        if edge in scene.items():
-            scene.removeItem(edge)
-
     def connectTo(self, knob):
         """Convenience method to connect this to another Knob."""
         if knob is self:
@@ -176,6 +166,31 @@ class Knob(QtGui.QGraphicsItem):
         knob.addEdge(edge)
 
         edge.updatePath()
+
+    def addEdge(self, edge):
+        self.edges.append(edge)
+        scene = self.scene()
+        if edge not in scene.items():
+            scene.addItem(edge)
+
+    def removeEdge(self, edge):
+        self.edges.remove(edge)
+        scene = self.scene()
+        if edge in scene.items():
+            scene.removeItem(edge)
+
+    def destroy(self):
+        """Remove this Knob, its Edges and associations."""
+        print("destroy knob:", self)
+        edgesToDelete = self.edges[::]  # Avoid shrinking during deletion.
+        for edge in edgesToDelete:
+            edge.destroy()
+        node = self.parentItem()
+        if node:
+            node.removeKnob(self)
+
+        self.scene().removeItem(self)
+        del self
 
 
 class InputKnob(Knob):

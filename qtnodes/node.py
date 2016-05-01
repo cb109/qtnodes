@@ -8,7 +8,10 @@ from .knob import Knob, InputKnob, OutputKnob
 
 
 class Node(QtGui.QGraphicsItem):
+    """A Node is a container for a header and 0-n Knobs.
 
+    It can be created, removed and modified by the user in the UI.
+    """
     def __init__(self, scene=None):
         super(Node, self).__init__(scene=scene)
 
@@ -93,12 +96,17 @@ class Node(QtGui.QGraphicsItem):
         elif isinstance(knob, InputKnob):
             knob.setPos(bbox.left() - xOffset, yOffset)
 
+    def removeKnob(self, knob):
+        """Remove the Knob reference to this node and resize."""
+        knob.setParentItem(None)
+        self.updateSizeForChildren()
+
     def paint(self, painter, option, widget):
         painter.setBrush(QtGui.QBrush(self.fillColor))
         painter.setPen(QtGui.QPen(QtCore.Qt.NoPen))
 
         # The bounding box is only as high as the header (we do this
-        # to limit the area that is move-enabled). Acommodate for that.
+        # to limit the area that is move-enabled). Accommodate for that.
         bbox = self.boundingRect()
         painter.drawRoundedRect(self.x,
                                 self.y,
@@ -106,54 +114,6 @@ class Node(QtGui.QGraphicsItem):
                                 self.h,
                                 self.roundness,
                                 self.roundness)
-
-    # def sceneEvent(self, event):
-    #     print("sceneEvent()", event.type(), event)
-    #     super(Node, self).sceneEvent(event)
-
-    # def sceneEventFilter(self, watched, event):
-    #     print("sceneEventFilter()", watched, event.type(), event)
-    #     super(Node, self).sceneEventFilter(watched, event)
-
-    # def contextMenuEvent(self, event):
-    #     print("contextMenuEvent()", event.type(), event)
-    #     super(Node, self).contextMenuEvent(event)
-
-    # def focusInEvent(self, event):
-    #     print("focusInEvent()", event.type(), event)
-    #     super(Node, self).focusInEvent(event)
-
-    # def focusOutEvent(self, event):
-    #     print("focusOutEvent()", event.type(), event)
-    #     super(Node, self).focusOutEvent(event)
-
-    # def hoverEnterEvent(self, event):
-    #     print("hoverEnterEvent()", event.type(), event)
-    #     super(Node, self).hoverEnterEvent(event)
-
-    # def hoverMoveEvent(self, event):
-    #     print("hoverMoveEvent()", event.type(), event)
-    #     super(Node, self).hoverMoveEvent(event)
-
-    # def hoverLeaveEvent(self, event):
-    #     print("hoverLeaveEvent()", event.type(), event)
-    #     super(Node, self).hoverLeaveEvent(event)
-
-    # def inputMethodEvent(self, event):
-    #     print("inputMethodEvent()", event.type(), event)
-    #     super(Node, self).inputMethodEvent(event)
-
-    # def keyPressEvent(self, event):
-    #     print("keyPressEvent()", event.type(), event)
-    #     super(Node, self).keyPressEvent(event)
-
-    # def keyReleaseEvent(self, event):
-    #     print("keyReleaseEvent()", event.type(), event)
-    #     super(Node, self).keyReleaseEvent(event)
-
-    # def mousePressEvent(self, event):
-    #     print("mousePressEvent()", event.type(), event)
-    #     super(Node, self).mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
         """Update selected item's (and children's) positions as needed.
@@ -171,30 +131,14 @@ class Node(QtGui.QGraphicsItem):
                     edge.updatePath()
         super(Node, self).mouseMoveEvent(event)
 
-    # def mouseReleaseEvent(self, event):
-    #     print("mouseReleaseEvent()", event.type(), event)
-    #     super(Node, self).mouseReleaseEvent(event)
+    def destroy(self):
+        """Remove this Node, its Header, Knobs and connected Edges."""
+        print("destroy node:", self)
+        self.header.destroy()
+        knobs = [c for c in self.childItems() if isinstance(c, Knob)]
+        for knob in knobs:
+            knob.destroy()
 
-    # def mouseDoubleClickEvent(self, event):
-    #     print("mouseDoubleClickEvent()", event.type(), event)
-    #     super(Node, self).mouseDoubleClickEvent(event)
-
-    # def wheelEvent(self, event):
-    #     print("wheelEvent()", event.type(), event)
-    #     super(Node, self).wheelEvent(event)
-
-    # def dragEnterEvent(self, event):
-    #     print("dragEnterEvent()", event.type(), event)
-    #     super(Node, self).dragEnterEvent(event)
-
-    # def dragMoveEvent(self, event):
-    #     print("dragMoveEvent()", event.type(), event)
-    #     super(Node, self).dragMoveEvent(event)
-
-    # def dragLeaveEvent(self, event):
-    #     print("dragLeaveEvent()", event.type(), event)
-    #     super(Node, self).dragLeaveEvent(event)
-
-    # def dropEvent(self, event):
-    #     print("dropEvent()", event.type(), event)
-    #     super(Node, self).dropEvent(event)
+        scene = self.scene()
+        scene.removeItem(self)
+        del self

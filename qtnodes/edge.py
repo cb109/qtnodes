@@ -71,3 +71,12 @@ class Edge(QtGui.QGraphicsPathItem):
                                self.pos1.y() + dy * self.curv4)
         path.cubicTo(ctrl1, ctrl2, self.pos2)
         self.setPath(path)
+
+    def destroy(self):
+        """Remove this Edge and its reference in other objects."""
+        print("destroy edge:", self)
+        if self.knob1:
+            self.knob1.removeEdge(self)
+        if self.knob2:
+            self.knob2.removeEdge(self)
+        del self

@@ -56,3 +56,10 @@ class Header(QtGui.QGraphicsItem):
         painter.drawText(self.x() + self.node.margin,
                          self.y() + (self.h + textSize.height() / 2) / 2,
                          self.text)
+
+    def destroy(self):
+        """Remove this object from the scene and delete it."""
+        print("destroy header:", self)
+        scene = self.node.scene()
+        scene.removeItem(self)
+        del self

@@ -1,7 +1,9 @@
 """Editor widget."""
 
 from PySide import QtGui
+from PySide import QtCore
 
+from .node import Node
 from .view import GridView
 
 
@@ -25,6 +27,15 @@ class NodeGraphWidget(QtGui.QWidget):
 
         self.nodeClasses = {}
 
+    def keyPressEvent(self, event):
+        """Delete selected Nodes."""
+        if event.key() == QtCore.Qt.Key.Key_Delete:
+            selectedNodes = [i for i in self.scene.selectedItems()
+                             if isinstance(i, Node)]
+            for node in selectedNodes:
+                node.destroy()
+        super(NodeGraphWidget, self).keyPressEvent(event)
+
     def contextMenuEvent(self, event):
         """Show a menu to create registered Nodes."""
         menu = QtGui.QMenu(self)
@@ -40,16 +51,21 @@ class NodeGraphWidget(QtGui.QWidget):
 
         super(NodeGraphWidget, self).contextMenuEvent(event)
 
-    def _createNode(self, cls, atMousePos=True):
+    def _createNode(self, cls, atMousePos=True, center=True):
         """The class must provide defaults in its constructor.
 
-        We pass the scene here so the node is drawn immediately.
+        We ensure the scene immediately gets the Node added, otherwise
+        the GC could snack it up right away.
         """
-        node = cls(scene=self.scene)
+        node = cls()
+        self.addNode(node)
+
         if atMousePos:
             mousePos = self.view.mapToScene(
                 self.mapFromGlobal(QtGui.QCursor.pos()))
             node.setPos(mousePos)
+        if center:
+            self.view.centerOn(node.pos())
 
     def registerNodeClass(self, cls):
         self.nodeClasses[cls.__name__] = cls

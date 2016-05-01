@@ -42,11 +42,13 @@ class GridView(QtGui.QGraphicsView):
         """Trigger a redraw of Edges to update their color."""
         if event.key() == QtCore.Qt.Key.Key_Control:
             self._redrawEdges()
+        super(GridView, self).keyPressEvent(event)
 
     def keyReleaseEvent(self, event):
         """Trigger a redraw of Edges to update their color."""
         if event.key() == QtCore.Qt.Key.Key_Control:
             self._redrawEdges()
+        super(GridView, self).keyReleaseEvent(event)
 
     def mousePressEvent(self, event):
         """Initiate custom panning using middle mouse button."""
