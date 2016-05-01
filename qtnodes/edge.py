@@ -11,6 +11,7 @@ class Edge(QtGui.QGraphicsPathItem):
         super(Edge, self).__init__()
 
         self.lineColor = QtGui.QColor(10, 10, 10)
+        self.removalColor = QtCore.Qt.red
         self.thickness = 1
 
         self.knob1 = None
@@ -37,7 +38,14 @@ class Edge(QtGui.QGraphicsPathItem):
             del self
 
     def paint(self, painter, option, widget):
-        self.setPen(QtGui.QPen(self.lineColor, self.thickness))
+        """CTRL will show the Edge in red, because we can delete it then."""
+        ctrl = (QtGui.QApplication.keyboardModifiers() ==
+                QtCore.Qt.ControlModifier)
+        if ctrl:
+            self.setPen(QtGui.QPen(self.removalColor, self.thickness))
+        else:
+            self.setPen(QtGui.QPen(self.lineColor, self.thickness))
+
         self.setBrush(QtCore.Qt.NoBrush)
         self.setZValue(-1)
         super(Edge, self).paint(painter, option, widget)

@@ -3,6 +3,8 @@
 from PySide import QtGui
 from PySide import QtCore
 
+from .edge import Edge
+
 
 CURRENT_ZOOM = 1.0
 
@@ -29,6 +31,22 @@ class GridView(QtGui.QGraphicsView):
 
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
         # self.setTransformationAnchor(QtGui.QGraphicsView.AnchorUnderMouse)
+
+    def _redrawEdges(self):
+        """Trigger a repaint of all Edges in the scene."""
+        for item in self.scene().items():
+            if isinstance(item, Edge):
+                item.update()
+
+    def keyPressEvent(self, event):
+        """Trigger a redraw of Edges to update their color."""
+        if event.key() == QtCore.Qt.Key.Key_Control:
+            self._redrawEdges()
+
+    def keyReleaseEvent(self, event):
+        """Trigger a redraw of Edges to update their color."""
+        if event.key() == QtCore.Qt.Key.Key_Control:
+            self._redrawEdges()
 
     def mousePressEvent(self, event):
         """Initiate custom panning using middle mouse button."""
