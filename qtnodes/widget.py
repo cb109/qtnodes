@@ -59,7 +59,7 @@ class NodeGraphWidget(QtGui.QWidget):
 
         super(NodeGraphWidget, self).keyPressEvent(event)
 
-    def addDefaultMenuActions(self, menu):
+    def addSceneMenuActions(self, menu):
         """Add scene specific actions like hold/fetch/save/load."""
         subMenu = menu.addMenu("Scene")
 
@@ -95,11 +95,6 @@ class NodeGraphWidget(QtGui.QWidget):
 
         subMenu.addSeparator()
 
-        clearSceneAction = subMenu.addAction("Clear Scene")
-        clearSceneAction.triggered.connect(self.clearScene)
-
-        subMenu.addSeparator()
-
         def _storeCurrentScene():
             self.lastStoredSceneData = serializer.serializeScene(self.scene)
             QtGui.QMessageBox.information(self, "Hold",
@@ -120,6 +115,11 @@ class NodeGraphWidget(QtGui.QWidget):
         fetchAction = subMenu.addAction("Fetch")
         fetchAction.triggered.connect(_loadLastStoredScene)
 
+        subMenu.addSeparator()
+
+        clearSceneAction = subMenu.addAction("Clear Scene")
+        clearSceneAction.triggered.connect(self.clearScene)
+
     def addNodesMenuActions(self, menu):
         subMenu = menu.addMenu("Nodes")
         for cls in self.nodeClasses:
@@ -131,8 +131,8 @@ class NodeGraphWidget(QtGui.QWidget):
     def contextMenuEvent(self, event):
         """Show a menu to create registered Nodes."""
         menu = QtGui.QMenu(self)
-        self.addDefaultMenuActions(menu)
         self.addNodesMenuActions(menu)
+        self.addSceneMenuActions(menu)
         menu.exec_(event.globalPos())
 
         super(NodeGraphWidget, self).contextMenuEvent(event)
