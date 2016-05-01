@@ -21,12 +21,17 @@ class Knob(QtGui.QGraphicsItem):
         self.w = kwargs.get("w", 10)
         self.h = kwargs.get("h", 10)
         self.margin = kwargs.get("margin", 5)
-        self.flow = kwargs.get("margin", FLOW_LEFT_TO_RIGHT)
+        self.flow = kwargs.get("flow", FLOW_LEFT_TO_RIGHT)
 
+        # FIXME: This is basically the unique identifier now.
+        #   We could create multiple Knobs with the same though,
+        #   which would be a problem during deserialization.
         self.labelText = kwargs.get("labelText", "value")
+
         self.labelColor = kwargs.get("labelColor", QtGui.QColor(10, 10, 10))
         self.fillColor = kwargs.get("fillColor", QtGui.QColor(130, 130, 130))
-        self.highlightColor = kwargs.get("highlightColor", QtCore.Qt.yellow)
+        self.highlightColor = kwargs.get("highlightColor",
+                                         QtGui.QColor(255, 255, 0))
 
         # Temp store for Edge currently being created.
         self.newEdge = None
@@ -36,6 +41,10 @@ class Knob(QtGui.QGraphicsItem):
         self.setAcceptHoverEvents(True)
         self.setAcceptTouchEvents(True)
         self.setAcceptDrops(True)
+
+    def node(self):
+        """This Knob's parent item is the Node it is attached to."""
+        return self.parentItem()
 
     def highlight(self, toggle):
         """Toggle highlight color."""

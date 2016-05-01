@@ -1,5 +1,7 @@
 """Node classes."""
 
+import uuid
+
 from PySide import QtGui
 from PySide import QtCore
 
@@ -14,6 +16,9 @@ class Node(QtGui.QGraphicsItem):
     """
     def __init__(self, scene=None):
         super(Node, self).__init__(scene=scene)
+
+        # This unique id is useful for serialization/reconstruction.
+        self.uuid = str(uuid.uuid4())
 
         self.header = None
 
@@ -37,12 +42,19 @@ class Node(QtGui.QGraphicsItem):
         self.setAcceptTouchEvents(True)
         self.setAcceptDrops(True)
 
-    def knob(self, name):
-        """Return matching Knob by name, None otherwise."""
+    def knobs(self):
+        """Return a list of childItems that are Knob objects."""
+        knobs = []
         for child in self.childItems():
             if isinstance(child, Knob):
-                if child.labelText == name:
-                    return child
+                knobs.append(child)
+        return knobs
+
+    def knob(self, name):
+        """Return matching Knob by name, None otherwise."""
+        for knob in self.knobs():
+            if knob.labelText == name:
+                return knob
         return None
 
     def boundingRect(self):
