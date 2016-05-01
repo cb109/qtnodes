@@ -12,8 +12,17 @@ To start a small demo:
 
     $ python -m qtnodes
 
+Scene
+=====
+
 - **Pan the viewport**: Hold the middle mousebutton and drag.
 - **Zoom the viewport**: Use the mouse wheel.
+- **Hold scene state:** Rightclick > Scene > Hold
+- **Fetch scene state:** Rightclick > Scene > Fetch
+
+Nodes
+=====
+
 - **Select a node**: Leftclick its header.
 - **Select multiple nodes**: Leftclick and drag a rectangle over the nodes, release to select.
 - **Create a node**: Rightclick and choose a node from the context menu.
