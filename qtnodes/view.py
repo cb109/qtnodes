@@ -98,8 +98,6 @@ class GridView(QtGui.QGraphicsView):
         global CURRENT_ZOOM
         CURRENT_ZOOM = self.transform().m11()
 
-        super(GridView, self).wheelEvent(event)
-
     def drawBackground(self, painter, rect):
         painter.setBrush(QtGui.QBrush(self.fillColor))
         painter.setPen(QtGui.QPen(self.lineColor))
