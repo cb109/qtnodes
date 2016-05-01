@@ -36,9 +36,7 @@ class Edge(QtGui.QGraphicsPathItem):
         leftmouse = event.button() == QtCore.Qt.MouseButton.LeftButton
         mod = event.modifiers() == DELETE_MODIFIER_KEY
         if leftmouse and mod:
-            self.knob1.removeEdge(self)
-            self.knob2.removeEdge(self)
-            del self
+            self.destroy()
 
     def paint(self, painter, option, widget):
         """ALT will show the Edge in red, because we can delete it then."""
