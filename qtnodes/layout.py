@@ -17,11 +17,6 @@ class Tree(object):
         self.parents = []
         self.children = []
 
-        self.depth = -1
-        self.position = 0
-        self.w = self.node.w
-        self.h = self.node.h
-
 
 def _getNodesFromScene(scene):
     """Return all Node items of the given QGraphicsScene."""
