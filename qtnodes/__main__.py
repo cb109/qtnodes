@@ -199,6 +199,7 @@ todos
 
 - bug: sometimes a node's background rectangle is not cleared when deleting nodes
 
+- decouple identifier and display name in all items, so it can be changed
 - edit nodes: possibly like in nuke, with an extra floating widget or a sidebar
 - attach data to nodes and let them modify it: callbacks? custom signals?
 - evaluate the graph, graph traversal, show some values in the ui?
