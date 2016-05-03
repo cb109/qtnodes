@@ -2,7 +2,7 @@
 
 from PySide import QtGui
 
-from .knob import InputKnob, OutputKnob, Knob
+from .knob import InputKnob, OutputKnob
 from .header import Header
 from .node import Node
 from .widget import NodeGraphWidget
@@ -110,6 +110,15 @@ class File(Node):
         self.addKnob(InputKnob(labelText="parent"))
 
 
+class MaxObject(Node):
+
+    def __init__(self):
+        super(MaxObject, self).__init__()
+        self.addHeader(Header(node=self, text=self.__class__.__name__))
+        self.addKnob(InputKnob(labelText="children"))
+        self.addKnob(OutputKnob(labelText="parent"))
+
+
 def test():
     app = QtGui.QApplication([])
 
@@ -127,31 +136,7 @@ def test():
     graph.registerNodeClass(BigNode)
     graph.registerNodeClass(File)
     graph.registerNodeClass(Directory)
-
-    # d1 = Directory(scene=graph.scene, text="root")
-    # d2 = Directory(scene=graph.scene, text="opt")
-    # d3 = Directory(scene=graph.scene, text="rengo")
-    # d4 = Directory(scene=graph.scene, text=".venvs")
-    # d5 = Directory(scene=graph.scene, text="rengo")
-    # d6 = Directory(scene=graph.scene, text="rengo01")
-    # d7 = Directory(scene=graph.scene, text="bin")
-    # d8 = File(scene=graph.scene, text="activate")
-
-    # d2.moveBy(100, 0)
-    # d3.moveBy(200, 0)
-    # d4.moveBy(200, 70)
-    # d5.moveBy(300, 70)
-    # d6.moveBy(300, 0)
-    # d7.moveBy(400, 70)
-    # d8.moveBy(500, 70)
-
-    # d1.knob("children").connectTo(d2.knob("parent"))
-    # d2.knob("children").connectTo(d3.knob("parent"))
-    # d2.knob("children").connectTo(d4.knob("parent"))
-    # d4.knob("children").connectTo(d5.knob("parent"))
-    # d3.knob("children").connectTo(d6.knob("parent"))
-    # d5.knob("children").connectTo(d7.knob("parent"))
-    # d7.knob("children").connectTo(d8.knob("parent"))
+    graph.registerNodeClass(MaxObject)
 
     nodeInt1 = Integer(scene=graph.scene)
     nodeInt2 = Integer(scene=graph.scene)
@@ -199,6 +184,7 @@ todos
 
 - bug: sometimes a node's background rectangle is not cleared when deleting nodes
 
+- make graphviz layouting aware of actual node width and height
 - decouple identifier and display name in all items, so it can be changed
 - edit nodes: possibly like in nuke, with an extra floating widget or a sidebar
 - attach data to nodes and let them modify it: callbacks? custom signals?
