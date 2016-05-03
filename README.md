@@ -56,6 +56,8 @@ You can load example **.json** files from `examples/`.
 - **Fetch scene state:** Rightclick > Scene > Fetch
 - **Autolayout scene:** Rightclick > Scene > Auto Layout
 
+Please note: The automatic layout needs [graphviz](http://www.graphviz.org), which means its `dot` command must be on **PATH**.
+
 ### Nodes
 
 - **Select a node**: Leftclick its header.
