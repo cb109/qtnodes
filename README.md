@@ -78,3 +78,4 @@ Additional sources and inspirations:
 - http://nukengine.com/blog/category/all/qt-node-editor/
 - http://blog.interfacevision.com/design/design-visual-progarmming-languages-snapshots/
 - https://github.com/Tillsten/qt-dataflow
+- https://gist.github.com/dbr/1255776 (Nuke node layout with graphviz)
