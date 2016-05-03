@@ -1,11 +1,12 @@
-"""Tree layouting algorithm.
-
-This is very hacky and horribly inefficient right now, but it really
-helps experimenting with the tool.
-"""
-from collections import defaultdict
+"""Automatic tree layouting."""
+import os
+import re
 
 from .node import Node
+
+# Need to have graphviz installed (its bin/ must be on PATH).
+import pydot
+import appdirs
 
 
 class Tree(object):
@@ -22,7 +23,13 @@ class Tree(object):
         self.h = self.node.h
 
 
-def makeTree(nodes):
+def _getNodesFromScene(scene):
+    """Return all Node items of the given QGraphicsScene."""
+    nodes = [i for i in scene.items() if isinstance(i, Node)]
+    return nodes
+
+
+def _makeTree(nodes):
     """Return a list of Trees that represent the Node hierarchy."""
     node2tree = {}
     for node in nodes:
@@ -48,58 +55,95 @@ def makeTree(nodes):
     return trees
 
 
-def assignDepth(tree, currentDepth=0):
-    """Depth tells us how deep in a hierarchy a Node belongs."""
-    # Make sure to only assign this once, otherwise it may be
-    # overwritten for Nodes that theoretically can be seen as being in
-    # more than one hierarchy level. Keep the first (and such, lowest).
-    if tree.depth == -1:
-        tree.depth = currentDepth
-
-    currentDepth += 1
-    for child in tree.children:
-        assignDepth(child, currentDepth=currentDepth)
-
-
 def autoLayout(scene):
-    """Do a basic hierarchical tree layout of the scene."""
+    """Tree layout using graphviz.
+
+    Code based on this example: https://gist.github.com/dbr/1255776
+    """
     print("auto layout")
-    nodes = [i for i in scene.items() if isinstance(i, Node)]
+
+    nodes = _getNodesFromScene(scene)
     if not nodes:
         return
 
-    trees = makeTree(nodes)
+    trees = _makeTree(nodes)
 
-    # Arrange hierarchical levels on x-axis.
-    withoutParents = [t for t in trees if not t.parents]
-    for tree in withoutParents:
-        assignDepth(tree, currentDepth=0)
+    class Dotter(object):
+        """Walk the Tree hierarchy and write it to a .dot file."""
 
-    xMargin = 50
-    maxWidth = max([tree.node.w for tree in trees])
+        delim = "_"
+
+        def __init__(self):
+            self.graph = pydot.Dot(graph_type="digraph", rankdir="LR")
+            self.checked = []
+            self.counter = 0
+
+        def nodeToName(self, node):
+            # FIXME: Using <classname>_<n-digit-uuid> has a chance
+            #   of name clashes which gets higher the more nodes we
+            #   have. We should use the full uuid as identifier, but
+            #   make sure graphviz does not use it as the node width
+            #   when doing its layouting. Right now that would result
+            #   in graphs that are very far spaced out.
+            return (node.header.text + self.delim + node.uuid[:4])
+
+        def recursiveGrapher(self, tree, level=0):
+            self.counter += 1
+
+            if tree in self.checked:
+                # Don't redo parts of tree already checked.
+                return
+
+            self.checked.append(tree)
+
+            for childTree in tree.children:
+                childName = self.nodeToName(childTree.node)
+                parentName = self.nodeToName(tree.node)
+                edge = pydot.Edge(childName, parentName)
+                self.graph.add_edge(edge)
+                print ("{0} Recursing into {1}".format(
+                       level, childName))
+                self.recursiveGrapher(childTree, level=level + 1)
+
+        def save(self, filePath):
+            """Writing the graph to file will apply graphviz' layouting."""
+            # TODO: We can use 'dot' or 'neato', however 'neato'
+            #   currently produces pretty bad results (probably related
+            #   to .Dot() settings above, may be worth looking into it.)
+            self.graph.write_dot(filePath, prog="dot")
+
+    def assignDotResultToNodes(dotFile, nodes):
+        """Read positions from file and apply them."""
+
+        # TODO: Use pydot's pydot_parser.py instead.
+        # Extract the node name and its x and y position.
+        pattern = r"(?P<name>[\"]{0,1}[a-zA-Z0-9_-]+[\"]{0,1})\s*\[\w+\=(?:\d+(?:\.\d+){0,1})\,\s*pos\=\"(?P<x>\d+(?:\.\d+){0,1})\,(?P<y>\d+(?:\.\d+){0,1})"  # noqa
+
+        with open(dotFile) as f:
+            text = f.read()
+
+        name2node = {}
+        for node in nodes:
+            name = dotter.nodeToName(node)
+            name2node[name] = node
+
+        matches = re.findall(pattern, text)
+        for name, x, y in matches:
+            node = name2node[name]
+            node.setPos(float(x), float(y))
+
+    dataDir = os.path.join(appdirs.user_data_dir(), "qtnodes")
+    try:
+        os.makedirs(dataDir)
+    except OSError:
+        if not os.path.isdir(dataDir):
+            raise
+    dotFile = os.path.join(dataDir, "last_layout.dot")
+    print("writing layout to", dotFile)
+
+    dotter = Dotter()
     for tree in trees:
-        x = tree.depth * (-maxWidth - xMargin)
-        print(tree.depth, x, maxWidth)
-        tree.node.setPos(x, tree.node.pos().y())
+        dotter.recursiveGrapher(tree)
 
-    # Arrange Nodes within each level on the y-axis.
-    depth2nodes = defaultdict(list)
-    for tree in trees:
-        depth2nodes[tree.depth].append(tree.node)
-
-    # We start at the deepest level, at the leafs.
-    yMargin = 20
-    for depth in reversed(sorted(depth2nodes)):
-        nodes = depth2nodes[depth]
-
-        firstNode = nodes[0]  # Anchor node.
-        firstNode.setPos(firstNode.pos().x(), 0)
-
-        for i, node in enumerate(nodes):
-            predecessor = nodes[i - 1] if i > 0 else None
-            if predecessor:
-                yOffset = i * (predecessor.h + yMargin)
-            else:
-                yOffset = i * yMargin
-            node.setPos(node.pos().x(),
-                        firstNode.pos().y() + yOffset)
+    dotter.save(dotFile)
+    assignDotResultToNodes(dotFile, nodes)
