@@ -6,6 +6,7 @@ import re
 from .node import Node
 from .edge import Edge
 from .helpers import fromJson, toJson, readFileContent
+from .exceptions import UnregisteredNodeClassError
 
 
 def serializeEdge(edge):
@@ -66,7 +67,10 @@ def reconstructScene(graphWidget, sceneData):
 
     # Reconstruct Nodes.
     for nodeData in sceneData["nodes"]:
-        cls = classMap[nodeData["class"]]
+        try:
+            cls = classMap[nodeData["class"]]
+        except KeyError as err:
+            raise UnregisteredNodeClassError(err)
 
         node = cls()
         node.uuid = nodeData["uuid"]  # Enforce 'original' uuid.
