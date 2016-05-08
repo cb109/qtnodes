@@ -28,10 +28,8 @@ class Knob(QtGui.QGraphicsItem):
 
         self.maxConnections = -1  # A negative value means 'unlimited'.
 
-        # FIXME: This is basically the unique identifier now.
-        #   We could create multiple Knobs with the same though,
-        #   which would be a problem during deserialization.
-        self.labelText = "value"
+        self.name = "value"
+        self.displayName = self.name
 
         self.labelColor = QtGui.QColor(10, 10, 10)
         self.fillColor = QtGui.QColor(130, 130, 130)
@@ -122,7 +120,7 @@ class Knob(QtGui.QGraphicsItem):
         painter.drawRect(bbox)
 
         # Draw a text label next to it. Position depends on the flow.
-        textSize = getTextSize(self.labelText, painter=painter)
+        textSize = getTextSize(self.displayName, painter=painter)
         if self.flow == FLOW_LEFT_TO_RIGHT:
             x = bbox.right() + self.margin
         elif self.flow == FLOW_RIGHT_TO_LEFT:
@@ -133,7 +131,7 @@ class Knob(QtGui.QGraphicsItem):
         y = bbox.bottom()
 
         painter.setPen(QtGui.QPen(self.labelColor))
-        painter.drawText(x, y, self.labelText)
+        painter.drawText(x, y, self.displayName)
 
     def hoverEnterEvent(self, event):
         """Change the Knob's rectangle color."""
@@ -301,7 +299,8 @@ class InputKnob(Knob):
 
     def __init__(self, *args, **kwargs):
         super(InputKnob, self).__init__(*args, **kwargs)
-        self.labelText = kwargs.get("labelText", "input")
+        self.name = kwargs.get("name", "input")
+        self.displayName = kwargs.get("displayName", self.name)
         self.fillColor = kwargs.get("fillColor", QtGui.QColor(130, 230, 130))
 
     def finalizeEdge(self, edge):
@@ -313,7 +312,8 @@ class OutputKnob(Knob):
 
     def __init__(self, *args, **kwargs):
         super(OutputKnob, self).__init__(*args, **kwargs)
-        self.labelText = kwargs.get("labelText", "output")
+        self.name = kwargs.get("name", "output")
+        self.displayName = kwargs.get("displayName", self.name)
         self.fillColor = kwargs.get("fillColor", QtGui.QColor(230, 130, 130))
         self.flow = kwargs.get("flow", FLOW_RIGHT_TO_LEFT)
 

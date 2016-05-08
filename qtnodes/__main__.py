@@ -13,7 +13,7 @@ class Integer(Node):
     def __init__(self, *args, **kwargs):
         super(Integer, self).__init__(*args, **kwargs)
         self.addHeader(Header(node=self, text="Int"))
-        self.addKnob(OutputKnob(labelText="value"))
+        self.addKnob(OutputKnob(name="value"))
         # self.header.fillColor = QtGui.QColor(36, 128, 18)
 
 
@@ -22,7 +22,7 @@ class Float(Node):
     def __init__(self, *args, **kwargs):
         super(Float, self).__init__(*args, **kwargs)
         self.addHeader(Header(node=self, text="Float"))
-        self.addKnob(OutputKnob(labelText="value"))
+        self.addKnob(OutputKnob(name="value"))
         # self.header.fillColor = QtGui.QColor(24, 129, 163)
 
 
@@ -31,9 +31,9 @@ class Multiply(Node):
     def __init__(self, *args, **kwargs):
         super(Multiply, self).__init__(*args, **kwargs)
         self.addHeader(Header(node=self, text=self.__class__.__name__))
-        self.addKnob(InputKnob(labelText="x"))
-        self.addKnob(InputKnob(labelText="y"))
-        self.addKnob(OutputKnob(labelText="value"))
+        self.addKnob(InputKnob(name="x"))
+        self.addKnob(InputKnob(name="y"))
+        self.addKnob(OutputKnob(name="value"))
         # self.header.fillColor = QtGui.QColor(163, 26, 159)
 
 
@@ -63,7 +63,7 @@ class Output(Node):
     def __init__(self, *args, **kwargs):
         super(Output, self).__init__(*args, **kwargs)
         self.addHeader(Header(node=self, text="Output"))
-        self.addKnob(InputKnob(labelText="output"))
+        self.addKnob(InputKnob(name="output"))
         # self.header.fillColor = self.fillColor
         # self.header.textColor = QtGui.QColor(10, 10, 10)
 
@@ -73,24 +73,24 @@ class BigNode(Node):
     def __init__(self, *args, **kwargs):
         super(BigNode, self).__init__(*args, **kwargs)
         self.addHeader(Header(node=self, text="BigNode"))
-        self.addKnob(InputKnob(labelText="i1"))
-        self.addKnob(OutputKnob(labelText="o1"))
-        self.addKnob(InputKnob(labelText="i2"))
-        self.addKnob(OutputKnob(labelText="o2"))
-        self.addKnob(InputKnob(labelText="i3"))
-        self.addKnob(OutputKnob(labelText="o3"))
-        self.addKnob(InputKnob(labelText="i4"))
-        self.addKnob(OutputKnob(labelText="o4"))
-        self.addKnob(InputKnob(labelText="i5"))
-        self.addKnob(OutputKnob(labelText="o5"))
-        self.addKnob(InputKnob(labelText="i6"))
-        self.addKnob(OutputKnob(labelText="o6"))
-        self.addKnob(InputKnob(labelText="i7"))
-        self.addKnob(OutputKnob(labelText="o7"))
-        self.addKnob(InputKnob(labelText="i8"))
-        self.addKnob(OutputKnob(labelText="o8"))
-        self.addKnob(InputKnob(labelText="i9"))
-        self.addKnob(OutputKnob(labelText="o9"))
+        self.addKnob(InputKnob(name="i1"))
+        self.addKnob(OutputKnob(name="o1"))
+        self.addKnob(InputKnob(name="i2"))
+        self.addKnob(OutputKnob(name="o2"))
+        self.addKnob(InputKnob(name="i3"))
+        self.addKnob(OutputKnob(name="o3"))
+        self.addKnob(InputKnob(name="i4"))
+        self.addKnob(OutputKnob(name="o4"))
+        self.addKnob(InputKnob(name="i5"))
+        self.addKnob(OutputKnob(name="o5"))
+        self.addKnob(InputKnob(name="i6"))
+        self.addKnob(OutputKnob(name="o6"))
+        self.addKnob(InputKnob(name="i7"))
+        self.addKnob(OutputKnob(name="o7"))
+        self.addKnob(InputKnob(name="i8"))
+        self.addKnob(OutputKnob(name="o8"))
+        self.addKnob(InputKnob(name="i9"))
+        self.addKnob(OutputKnob(name="o9"))
 
 
 class Directory(Node):
@@ -98,8 +98,8 @@ class Directory(Node):
     def __init__(self, *args, **kwargs):
         super(Directory, self).__init__(*args, **kwargs)
         self.addHeader(Header(node=self, text="Directory"))
-        self.addKnob(InputKnob(labelText="parent"))
-        self.addKnob(OutputKnob(labelText="children"))
+        self.addKnob(InputKnob(name="parent"))
+        self.addKnob(OutputKnob(name="children"))
 
 
 class File(Node):
@@ -107,7 +107,7 @@ class File(Node):
     def __init__(self, *args, **kwargs):
         super(File, self).__init__(*args, **kwargs)
         self.addHeader(Header(node=self, text="File"))
-        self.addKnob(InputKnob(labelText="parent"))
+        self.addKnob(InputKnob(name="parent"))
 
 
 class MaxObject(Node):
@@ -115,8 +115,8 @@ class MaxObject(Node):
     def __init__(self):
         super(MaxObject, self).__init__()
         self.addHeader(Header(node=self, text=self.__class__.__name__))
-        self.addKnob(InputKnob(labelText="children"))
-        self.addKnob(OutputKnob(labelText="parent"))
+        self.addKnob(InputKnob(name="children"))
+        self.addKnob(OutputKnob(name="parent"))
 
 
 def test():
