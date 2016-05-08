@@ -22,8 +22,11 @@ class Knob(QtGui.QGraphicsItem):
         self.y = 0
         self.w = 10
         self.h = 10
+
         self.margin = 5
         self.flow = FLOW_LEFT_TO_RIGHT
+
+        self.maxConnections = -1  # A negative value means 'unlimited'.
 
         # FIXME: This is basically the unique identifier now.
         #   We could create multiple Knobs with the same though,
@@ -49,6 +52,8 @@ class Knob(QtGui.QGraphicsItem):
         """Convenience method to connect this to another Knob."""
         if knob is self:
             return
+
+        self.checkMaxConnections(knob)
 
         edge = Edge()
         edge.source = self
@@ -166,6 +171,7 @@ class Knob(QtGui.QGraphicsItem):
                             "Can't connect a Knob to itself.")
 
                     if isinstance(target, Knob):
+
                         if type(self) == type(target):
                             raise KnobConnectionError(
                                 "Can't connect Knobs of same type.")
@@ -178,6 +184,8 @@ class Knob(QtGui.QGraphicsItem):
                                 raise KnobConnectionError(
                                     "Connection already exists.")
                                 return
+
+                        self.checkMaxConnections(target)
 
                         print("finish edge")
                         target.addEdge(self.newEdge)
@@ -195,6 +203,27 @@ class Knob(QtGui.QGraphicsItem):
                 # Abort Edge creation and do some cleanup.
                 self.removeEdge(self.newEdge)
                 self.newEdge = None
+
+    def checkMaxConnections(self, knob):
+        """Check if both this and the target knob do accept another connection.
+
+        Raise a KnobConnectionError if not.
+        """
+        noLimits = self.maxConnections < 0 and knob.maxConnections < 0
+        if noLimits:
+            return
+
+        numSourceConnections = len(self.edges)  # Edge already added.
+        numTargetConnections = len(knob.edges) + 1
+
+        print(numSourceConnections, numTargetConnections)
+
+        sourceMaxReached = numSourceConnections > self.maxConnections
+        targetMaxReached = numTargetConnections > knob.maxConnections
+
+        if sourceMaxReached or targetMaxReached:
+            raise KnobConnectionError(
+                "Maximum number of connections reached.")
 
     def finalizeEdge(self, edge):
         """This intentionally is a NoOp on the Knob baseclass.
@@ -269,6 +298,7 @@ class OutputKnob(Knob):
         self.labelText = kwargs.get("labelText", "output")
         self.fillColor = kwargs.get("fillColor", QtGui.QColor(230, 130, 130))
         self.flow = kwargs.get("flow", FLOW_RIGHT_TO_LEFT)
+
 
     def finalizeEdge(self, edge):
         ensureEdgeDirection(edge)
