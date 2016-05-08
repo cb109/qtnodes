@@ -4,7 +4,9 @@ from PySide import QtGui
 from PySide import QtCore
 
 
-DELETE_MODIFIER_KEY = QtCore.Qt.AltModifier
+windows = os.name == "nt"
+
+DELETE_MODIFIER_KEY = QtCore.Qt.AltModifier if windows else QtCore.Qt.ControlModifier
 
 
 class Edge(QtGui.QGraphicsPathItem):
