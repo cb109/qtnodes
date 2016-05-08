@@ -17,10 +17,10 @@ def serializeEdge(edge):
     """
     return {
         "source_nodeId": edge.source.node().uuid,
-        "source_labelText": edge.source.labelText,
+        "source_name": edge.source.name,
 
         "target_nodeId": edge.target.node().uuid,
-        "target_labelText": edge.target.labelText,
+        "target_name": edge.target.name,
     }
 
 
@@ -81,10 +81,10 @@ def reconstructScene(graphWidget, sceneData):
     # Reconstruct their connections.
     for edgeData in sceneData["edges"]:
         sourceNode = graphWidget.getNodeById(edgeData["source_nodeId"])
-        sourceKnob = sourceNode.knob(edgeData["source_labelText"])
+        sourceKnob = sourceNode.knob(edgeData["source_name"])
 
         targetNode = graphWidget.getNodeById(edgeData["target_nodeId"])
-        targetKnob = targetNode.knob(edgeData["target_labelText"])
+        targetKnob = targetNode.knob(edgeData["target_name"])
 
         sourceKnob.connectTo(targetKnob)
 
