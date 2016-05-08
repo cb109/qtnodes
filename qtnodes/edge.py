@@ -1,5 +1,7 @@
 """Connections between Knobs."""
 
+import os
+
 from PySide import QtGui
 from PySide import QtCore
 
