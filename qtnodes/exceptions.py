@@ -15,3 +15,7 @@ class UnknownFlowError(QtNodesError):
 
 class KnobConnectionError(QtNodesError):
     """Something went wrong while trying to connect two Knobs."""
+
+
+class DuplicateKnobNameError(QtNodesError):
+	"""A Node's Knobs must have unique names."""

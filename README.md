@@ -24,9 +24,9 @@ class Multiply(Node):
     def __init__(self, *args, **kwargs):
         super(Multiply, self).__init__(*args, **kwargs)
         self.addHeader(Header(node=self, text=self.__class__.__name__))
-        self.addKnob(InputKnob(labelText="x"))
-        self.addKnob(InputKnob(labelText="y"))
-        self.addKnob(OutputKnob(labelText="value"))
+        self.addKnob(InputKnob(name="x"))
+        self.addKnob(InputKnob(name="y"))
+        self.addKnob(OutputKnob(name="value"))
 
 app = QtGui.QApplication([])
 graph = NodeGraphWidget()

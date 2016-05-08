@@ -7,6 +7,7 @@ from PySide import QtCore
 
 from .helpers import getTextSize
 from .knob import Knob, InputKnob, OutputKnob
+from .exceptions import DuplicateKnobNameError
 
 
 class Node(QtGui.QGraphicsItem):
@@ -59,9 +60,9 @@ class Node(QtGui.QGraphicsItem):
         return knobs
 
     def knob(self, name):
-        """Return matching Knob by name, None otherwise."""
+        """Return matching Knob by its name, None otherwise."""
         for knob in self.knobs():
-            if knob.labelText == name:
+            if knob.name == name:
                 return knob
         return None
 
@@ -93,7 +94,7 @@ class Node(QtGui.QGraphicsItem):
             headerWidth = (self.margin + getTextSize(self.header.text).width())
 
             knobs = [c for c in self.childItems() if isinstance(c, Knob)]
-            knobWidths = [k.w + self.margin + getTextSize(k.labelText).width()
+            knobWidths = [k.w + self.margin + getTextSize(k.displayName).width()
                           for k in knobs]
             maxWidth = max([headerWidth] + knobWidths)
             self.w = maxWidth + self.margin
@@ -111,12 +112,21 @@ class Node(QtGui.QGraphicsItem):
     def addKnob(self, knob):
         """Add the given Knob to this Node.
 
+        A Knob must have a unique name, meaning there can be no duplicates within 
+        a Node (the displayNames are not constrained though).
+
         Assign ourselves as the Knob's parent item (which also will put it onto
         the current scene, if not yet done) and adjust or size for it.
 
         The position of the Knob is set relative to this Node and depends on it
         either being an Input- or OutputKnob.
         """
+        knobNames = [k.name for k in self.knobs()]
+        if knob.name in knobNames:
+            raise DuplicateKnobNameError(
+                "Knob names must be unique, but {0} already exists."
+                .format(knob.name))
+
         children = [c for c in self.childItems()]
         yOffset = sum([c.h + self.margin for c in children])
         xOffset = self.margin / 2
