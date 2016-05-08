@@ -183,13 +183,16 @@ if __name__ == '__main__':
 todos
 
 - bug: sometimes a node's background rectangle is not cleared when deleting nodes
+- quirk: edge drawing seems one update cycle behind, possibly a faultý update logic
 
+- optional arrows at Edge ends to emphasíze graph direction
 - make graphviz layouting aware of actual node width and height
-- decouple identifier and display name in all items, so it can be changed
 - edit nodes: possibly like in nuke, with an extra floating widget or a sidebar
 - attach data to nodes and let them modify it: callbacks? custom signals?
 - evaluate the graph, graph traversal, show some values in the ui?
-- global settings, like 'restrict user from editing Edges'
+- global settings, like 'restrict user from editing Edges', 'straight connections' etc.
+- configurable Edge colors
 - tests!
+- backdrops! (but not exactly like in nuke please, the selection is weird), may be tricky with autolayout
 
 """
