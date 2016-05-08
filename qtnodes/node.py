@@ -66,6 +66,12 @@ class Node(QtGui.QGraphicsItem):
         return None
 
     def boundingRect(self):
+        """Return the bounding box of the Node, limited in height to its Header.
+
+        This is so that the drag & drop sensitive area for the Node is only
+        active when hovering its Header, as otherwise there would be conflicts
+        with the hover events for the Node's Knobs.
+        """
         rect = QtCore.QRect(self.x,
                             self.y,
                             self.w,
@@ -96,12 +102,21 @@ class Node(QtGui.QGraphicsItem):
         adjustHeight()
 
     def addHeader(self, header):
+        """Assign the given header and adjust the Node's size for it."""
         self.header = header
         header.setPos(self.pos())
         header.setParentItem(self)
         self.updateSizeForChildren()
 
     def addKnob(self, knob):
+        """Add the given Knob to this Node.
+
+        Assign ourselves as the Knob's parent item (which also will put it onto
+        the current scene, if not yet done) and adjust or size for it.
+
+        The position of the Knob is set relative to this Node and depends on it
+        either being an Input- or OutputKnob.
+        """
         children = [c for c in self.childItems()]
         yOffset = sum([c.h + self.margin for c in children])
         xOffset = self.margin / 2
@@ -122,11 +137,12 @@ class Node(QtGui.QGraphicsItem):
         self.updateSizeForChildren()
 
     def paint(self, painter, option, widget):
+        """Draw the Node's container rectangle."""
         painter.setBrush(QtGui.QBrush(self.fillColor))
         painter.setPen(QtGui.QPen(QtCore.Qt.NoPen))
 
         # The bounding box is only as high as the header (we do this
-        # to limit the area that is move-enabled). Accommodate for that.
+        # to limit the area that is drag-enabled). Accommodate for that.
         bbox = self.boundingRect()
         painter.drawRoundedRect(self.x,
                                 self.y,
@@ -138,15 +154,16 @@ class Node(QtGui.QGraphicsItem):
     def mouseMoveEvent(self, event):
         """Update selected item's (and children's) positions as needed.
 
+        We assume here that only Nodes can be selected.
+
         We cannot just update our own childItems, since we are using
-        RubberBandDrag, and that woudl lead to otherwise e.g. Edges
+        RubberBandDrag, and that would lead to otherwise e.g. Edges
         visually lose their connection until an attached Node is moved
         individually.
         """
-        items = self.scene().selectedItems()
-        for item in items:
-            knobs = [c for c in item.childItems() if isinstance(c, Knob)]
-            for knob in knobs:
+        nodes = self.scene().selectedItems()
+        for node in nodes:
+            for knob in node.knobs():
                 for edge in knob.edges:
                     edge.updatePath()
         super(Node, self).mouseMoveEvent(event)
@@ -155,8 +172,7 @@ class Node(QtGui.QGraphicsItem):
         """Remove this Node, its Header, Knobs and connected Edges."""
         print("destroy node:", self)
         self.header.destroy()
-        knobs = [c for c in self.childItems() if isinstance(c, Knob)]
-        for knob in knobs:
+        for knob in self.knobs():
             knob.destroy()
 
         scene = self.scene()
