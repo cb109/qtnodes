@@ -42,12 +42,20 @@ class Node(QtGui.QGraphicsItem):
         self.setAcceptTouchEvents(True)
         self.setAcceptDrops(True)
 
-    def knobs(self):
-        """Return a list of childItems that are Knob objects."""
+    def knobs(self, cls=None):
+        """Return a list of childItems that are Knob objects.
+
+        If the optional `cls` is specified, return only Knobs of that class.
+        This is useful e.g. to get all InputKnobs or OutputKnobs.
+        """
         knobs = []
         for child in self.childItems():
             if isinstance(child, Knob):
                 knobs.append(child)
+
+        if cls:
+            knobs = filter(knobs, lambda k: k.__class__ is cls)
+
         return knobs
 
     def knob(self, name):
