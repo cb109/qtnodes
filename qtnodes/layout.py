@@ -94,8 +94,21 @@ def autoLayout(scene):
             for childTree in tree.children:
                 childName = self.nodeToName(childTree.node)
                 parentName = self.nodeToName(tree.node)
+
+                # FIXME: dot probably needs width and height within a certain range?
+                # Make sure dot is aware of the actual Node sizes.
+                childNode = pydot.Node(childName, 
+                                       height=str(childTree.node.h), 
+                                       width=str(childTree.node.w))
+                parentNode = pydot.Node(parentName, 
+                                        height=str(tree.node.h), 
+                                        width=str(tree.node.w))
+                self.graph.add_node(childNode)
+                self.graph.add_node(parentNode)
+
                 edge = pydot.Edge(childName, parentName)
                 self.graph.add_edge(edge)
+                
                 print ("{0} Recursing into {1}".format(
                        level, childName))
                 self.recursiveGrapher(childTree, level=level + 1)
@@ -110,7 +123,7 @@ def autoLayout(scene):
     def assignDotResultToNodes(dotFile, nodes):
         """Read positions from file and apply them."""
 
-        # TODO: Use pydot's pydot_parser.py instead.
+        # TODO: Use pydot's dot_parser.py instead.
         # Extract the node name and its x and y position.
         pattern = r"(?P<name>[\"]{0,1}[a-zA-Z0-9_-]+[\"]{0,1})\s*\[\w+\=(?:\d+(?:\.\d+){0,1})\,\s*pos\=\"(?P<x>\d+(?:\.\d+){0,1})\,(?P<y>\d+(?:\.\d+){0,1})"  # noqa
 
