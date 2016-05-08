@@ -21,8 +21,8 @@ class Edge(QtGui.QGraphicsPathItem):
         self.removalColor = QtCore.Qt.red
         self.thickness = 1
 
-        self.source = None
-        self.target = None
+        self.source = None  # A Knob.
+        self.target = None  # A Knob.
 
         self.sourcePos = QtCore.QPointF(0, 0)
         self.targetPos = QtCore.QPointF(0, 0)
@@ -36,7 +36,7 @@ class Edge(QtGui.QGraphicsPathItem):
         self.setAcceptHoverEvents(True)
 
     def mousePressEvent(self, event):
-        """Delete Edge if icon is clicked with CTRL pressed."""
+        """Delete Edge if icon is clicked with DELETE_MODIFIER_KEY pressed."""
         leftMouse = event.button() == QtCore.Qt.MouseButton.LeftButton
         mod = event.modifiers() == DELETE_MODIFIER_KEY
         if leftMouse and mod:
@@ -66,7 +66,7 @@ class Edge(QtGui.QGraphicsPathItem):
         self.setPath(path)
 
     def paint(self, painter, option, widget):
-        """ALT will show the Edge in red, because we can delete it then."""
+        """Paint Edge color depending on modifier key pressed or not."""    
         mod = QtGui.QApplication.keyboardModifiers() == DELETE_MODIFIER_KEY
         if mod:
             self.setPen(QtGui.QPen(self.removalColor, self.thickness))
