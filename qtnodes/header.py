@@ -1,12 +1,11 @@
 """Node header."""
 
-from PySide import QtGui
-from PySide import QtCore
+from .qtchooser import QtCore, QtGui, QtWidgets
 
 from .helpers import getTextSize
 
 
-class Header(QtGui.QGraphicsItem):
+class Header(QtWidgets.QGraphicsItem):
     """A Header is a child of a Node and gives it a title.
 
     Its width resizes automatically to match the Node's width.
@@ -21,7 +20,7 @@ class Header(QtGui.QGraphicsItem):
 
     def boundingRect(self):
         nodebox = self.node.boundingRect()
-        rect = QtCore.QRect(self.x(),
+        rect = QtCore.QRectF(self.x(),
                             self.y(),
                             nodebox.width(),
                             self.h)

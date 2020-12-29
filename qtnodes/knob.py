@@ -1,7 +1,6 @@
 """Knob classes."""
 
-from PySide import QtGui
-from PySide import QtCore
+from .qtchooser import QtCore, QtGui, QtWidgets
 
 from .helpers import getTextSize
 from .exceptions import KnobConnectionError, UnknownFlowError
@@ -13,10 +12,10 @@ FLOW_LEFT_TO_RIGHT = "flow_left_to_right"
 FLOW_RIGHT_TO_LEFT = "flow_right_to_left"
 
 
-class Knob(QtGui.QGraphicsItem):
+class Knob(QtWidgets.QGraphicsItem):
     """A Knob is a socket of a Node and can be connected to other Knobs."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, name = None, **kwargs):
         super(Knob, self).__init__(**kwargs)
         self.x = 0
         self.y = 0
@@ -50,7 +49,7 @@ class Knob(QtGui.QGraphicsItem):
         """Convenience method to connect this to another Knob.
 
         This creates an Edge and directly connects it, in contrast to the mouse
-        events that first create an Edge temporarily and only connect if the 
+        events that first create an Edge temporarily and only connect if the
         user releases on a valid target Knob.
         """
         if knob is self:
@@ -70,8 +69,8 @@ class Knob(QtGui.QGraphicsItem):
     def addEdge(self, edge):
         """Add the given Edge to the internal tracking list.
 
-        This is only one part of the Knob connection procedure. It enables us to 
-        later traverse the whole graph and to see how many connections there 
+        This is only one part of the Knob connection procedure. It enables us to
+        later traverse the whole graph and to see how many connections there
         currently are.
 
         Also make sure it is added to the QGraphicsScene, if not yet done.
@@ -93,7 +92,7 @@ class Knob(QtGui.QGraphicsItem):
 
     def boundingRect(self):
         """Return the bounding box of this Knob."""
-        rect = QtCore.QRect(self.x,
+        rect = QtCore.QRectF(self.x,
                             self.y,
                             self.w,
                             self.h)
@@ -101,7 +100,7 @@ class Knob(QtGui.QGraphicsItem):
 
     def highlight(self, toggle):
         """Toggle the highlight color on/off.
-        
+
         Store the old color in a new attribute, so it can be restored.
         """
         if toggle:
@@ -175,39 +174,40 @@ class Knob(QtGui.QGraphicsItem):
 
             node = self.parentItem()
             scene = node.scene()
-            target = scene.itemAt(event.scenePos())
+            targets = scene.items(event.scenePos())
 
             try:
-                if self.newEdge and target:
+                if self.newEdge and targets:
 
-                    if self.newEdge.source is target:
-                        raise KnobConnectionError(
-                            "Can't connect a Knob to itself.")
-
-                    if isinstance(target, Knob):
-
-                        if type(self) == type(target):
+                    for target in targets:
+                        if self.newEdge.source is target:
                             raise KnobConnectionError(
-                                "Can't connect Knobs of same type.")
+                                "Can't connect a Knob to itself.")
 
-                        newConn = set([self, target])
-                        for edge in self.edges:
-                            existingConn = set([edge.source, edge.target])
-                            diff = existingConn.difference(newConn)
-                            if not diff:
+                        if isinstance(target, Knob):
+
+                            if type(self) == type(target):
                                 raise KnobConnectionError(
-                                    "Connection already exists.")
-                                return
+                                    "Can't connect Knobs of same type.")
 
-                        self.checkMaxConnections(target)
+                            newConn = set([self, target])
+                            for edge in self.edges:
+                                existingConn = set([edge.source, edge.target])
+                                diff = existingConn.difference(newConn)
+                                if not diff:
+                                    raise KnobConnectionError(
+                                        "Connection already exists.")
+                                    return
 
-                        print("finish edge")
-                        target.addEdge(self.newEdge)
-                        self.newEdge.target = target
-                        self.newEdge.updatePath()
-                        self.finalizeEdge(self.newEdge)
-                        self.newEdge = None
-                        return
+                            self.checkMaxConnections(target)
+
+                            print("finish edge")
+                            target.addEdge(self.newEdge)
+                            self.newEdge.target = target
+                            self.newEdge.updatePath()
+                            self.finalizeEdge(self.newEdge)
+                            self.newEdge = None
+                            return
 
                 raise KnobConnectionError(
                     "Edge creation cancelled by user.")
