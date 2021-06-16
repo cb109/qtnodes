@@ -15,7 +15,7 @@ Although this graph makes no sense, it shows the current look and feel:
 ## Code Example
 
 ```python
-from PySide import QtGui
+from PySide2 import QtWidgets
 from qtnodes import (Header, Node, InputKnob,
                      OutputKnob, NodeGraphWidget)
 
@@ -28,7 +28,7 @@ class Multiply(Node):
         self.addKnob(InputKnob(name="y"))
         self.addKnob(OutputKnob(name="value"))
 
-app = QtGui.QApplication([])
+app = QtWidgets.QApplication([])
 graph = NodeGraphWidget()
 graph.registerNodeClass(Multiply)
 graph.addNode(Multiply())

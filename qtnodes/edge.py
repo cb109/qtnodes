@@ -2,8 +2,7 @@
 
 import os
 
-from PySide import QtGui
-from PySide import QtCore
+from .qtchooser import QtCore, QtGui, QtWidgets
 
 
 windows = os.name == "nt"
@@ -11,7 +10,7 @@ windows = os.name == "nt"
 DELETE_MODIFIER_KEY = QtCore.Qt.AltModifier if windows else QtCore.Qt.ControlModifier
 
 
-class Edge(QtGui.QGraphicsPathItem):
+class Edge(QtWidgets.QGraphicsPathItem):
     """A connection between two Knobs."""
 
     def __init__(self, **kwargs):
@@ -66,14 +65,14 @@ class Edge(QtGui.QGraphicsPathItem):
         self.setPath(path)
 
     def paint(self, painter, option, widget):
-        """Paint Edge color depending on modifier key pressed or not."""    
-        mod = QtGui.QApplication.keyboardModifiers() == DELETE_MODIFIER_KEY
+        """Paint Edge color depending on modifier key pressed or not."""
+        mod = QtGui.QGuiApplication.keyboardModifiers() == DELETE_MODIFIER_KEY
         if mod:
             self.setPen(QtGui.QPen(self.removalColor, self.thickness))
         else:
             self.setPen(QtGui.QPen(self.lineColor, self.thickness))
 
-        self.setBrush(QtCore.Qt.NoBrush)
+        # self.setBrush(QtCore.Qt.NoBrush)
         self.setZValue(-1)
         super(Edge, self).paint(painter, option, widget)
 

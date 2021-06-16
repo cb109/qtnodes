@@ -2,21 +2,23 @@
 
 import uuid
 
-from PySide import QtGui
-from PySide import QtCore
+from .qtchooser import QtCore, QtGui, QtWidgets
 
 from .helpers import getTextSize
 from .knob import Knob, InputKnob, OutputKnob
 from .exceptions import DuplicateKnobNameError
 
 
-class Node(QtGui.QGraphicsItem):
+class Node(QtWidgets.QGraphicsItem):
     """A Node is a container for a header and 0-n Knobs.
 
     It can be created, removed and modified by the user in the UI.
     """
-    def __init__(self, **kwargs):
+    def __init__(self, scene = None, **kwargs):
         super(Node, self).__init__(**kwargs)
+
+        if (scene):
+            scene.addItem(self)
 
         # This unique id is useful for serialization/reconstruction.
         self.uuid = str(uuid.uuid4())
@@ -34,8 +36,8 @@ class Node(QtGui.QGraphicsItem):
         self.fillColor = QtGui.QColor(220, 220, 220)
 
         # General configuration.
-        self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
-        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
+        self.setFlag(QtWidgets.QGraphicsItem.ItemIsSelectable)
+        self.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable)
 
         self.setCursor(QtCore.Qt.SizeAllCursor)
 
@@ -73,7 +75,7 @@ class Node(QtGui.QGraphicsItem):
         active when hovering its Header, as otherwise there would be conflicts
         with the hover events for the Node's Knobs.
         """
-        rect = QtCore.QRect(self.x,
+        rect = QtCore.QRectF(self.x,
                             self.y,
                             self.w,
                             self.header.h)
@@ -112,7 +114,7 @@ class Node(QtGui.QGraphicsItem):
     def addKnob(self, knob):
         """Add the given Knob to this Node.
 
-        A Knob must have a unique name, meaning there can be no duplicates within 
+        A Knob must have a unique name, meaning there can be no duplicates within
         a Node (the displayNames are not constrained though).
 
         Assign ourselves as the Knob's parent item (which also will put it onto

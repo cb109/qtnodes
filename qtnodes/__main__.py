@@ -1,7 +1,6 @@
 """Manual tests."""
 
-from PySide import QtGui
-
+from .qtchooser import QtWidgets
 from .knob import InputKnob, OutputKnob
 from .header import Header
 from .node import Node
@@ -120,7 +119,7 @@ class MaxObject(Node):
 
 
 def test():
-    app = QtGui.QApplication([])
+    app = QtWidgets.QApplication([])
 
     graph = NodeGraphWidget()
     graph.setGeometry(100, 100, 800, 600)

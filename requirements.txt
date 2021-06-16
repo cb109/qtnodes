@@ -1,3 +1,4 @@
-appdirs==1.4.0
-pydot==1.0.2  # For tree layouting. Needs graphviz.
-PySide==1.2.4
+appdirs==1.4.4
+pydot==1.4.1    # For tree layouting. Needs graphviz.
+PySide2==5.15.2 # Default bindings
+# PyQt5==5.15.2 # Can also be used

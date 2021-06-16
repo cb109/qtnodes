@@ -2,9 +2,7 @@
 
 import json
 
-from PySide import QtGui
-from PySide import QtCore
-
+from .qtchooser import QtCore, QtGui, QtWidgets
 
 def readFileContent(filePath):
     """Return the content of the file."""
@@ -14,12 +12,12 @@ def readFileContent(filePath):
 
 def toJson(serialized):
     """Return JSON string from given native Python datatypes."""
-    return json.dumps(serialized, encoding="utf-8", indent=4)
+    return json.dumps(serialized, indent=4)
 
 
 def fromJson(jsonString):
     """Return native Python datatypes from JSON string."""
-    return json.loads(jsonString, encoding="utf-8")
+    return json.loads(jsonString)
 
 
 def getTextSize(text, painter=None):
